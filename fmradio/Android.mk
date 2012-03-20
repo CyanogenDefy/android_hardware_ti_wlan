@@ -15,11 +15,16 @@
 #
 # Modified by Sony Ericsson Mobile Communications AB
 
+# prevent conflicts with hardware/ti/wpan
+ifneq ($(OMAP_ENHANCEMENT),true)
+
 ifeq ($(BOARD_HAVE_FM_RADIO_TI),true)
   include hardware/ti/wlan/fmradio/fm_stack/Android.mk
-#  include hardware/ti/wlan/fmradio/fm_app/Android.mk
+  include hardware/ti/wlan/fmradio/fm_app/Android.mk
   include hardware/ti/wlan/fmradio/Fmapplication/Android.mk
   include hardware/ti/wlan/fmradio/service/Android.mk
   include hardware/ti/wlan/fmradio/service/src/jni/Android.mk
   include hardware/ti/wlan/fmradio/fmreceiverif/Android.mk
 endif # BOARD_HAVE_FM_RADIO_TI
+
+endif

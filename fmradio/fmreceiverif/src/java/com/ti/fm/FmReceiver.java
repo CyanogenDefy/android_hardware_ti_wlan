@@ -100,6 +100,7 @@ public class FmReceiver {
 			mService = null;
 			if (mServiceListener != null) {
 				mServiceListener.onServiceDisconnected();
+				Log.d(TAG, "Service disconnected");
 			}
 		}
 	};

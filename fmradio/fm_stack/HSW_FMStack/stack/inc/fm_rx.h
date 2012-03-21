@@ -279,6 +279,8 @@ typedef FMC_UINT FmRxCmdType;
 
 #define FM_RX_CMD_ENABLE_AUDIO				((FmRxCmdType)29)	/* Set Audio Routing command */
 #define FM_RX_CMD_DISABLE_AUDIO 				((FmRxCmdType)30)	/* Get Audio Routing command */
+#define FM_RX_CMD_SET_AUDIO_ROUTING FM_RX_CMD_ENABLE_AUDIO
+#define FM_RX_CMD_GET_AUDIO_ROUTING FM_RX_CMD_DISABLE_AUDIO
 #define FM_RX_CMD_DESTROY							((FmRxCmdType)31)	/* Destroy command */
 
 #define FM_RX_CMD_CHANGE_AUDIO_TARGET					((FmRxCmdType)32)	/* Change the audio target*/

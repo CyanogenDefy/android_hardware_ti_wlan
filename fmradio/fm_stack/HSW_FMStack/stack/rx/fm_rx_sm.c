@@ -565,9 +565,10 @@ FMC_STATIC void HandleGetRssiThresholdStartEnd(void);
 FMC_STATIC void HandleGetDeemphasisFilterStartEnd(void);
 FMC_STATIC void HandleGetVolumeStartEnd(void);
 FMC_STATIC void HandleGetAfSwitchModeStartEnd(void);
-#if 0 /* warning removal - unused code (yet) */
+#ifdef USE_AUDIO_ROUTING
+/* warning removal - unused code (yet) */
 FMC_STATIC void HandleGetAudioRoutingModeStartEnd(void);
-#endif /* 0 - warning removal - unused code (yet) */
+#endif
 /*******************************************************************************************************************
  *                  
  *******************************************************************************************************************/
@@ -945,11 +946,12 @@ FMC_STATIC _FmRxSmCmdInfo _fmRxSmCmdInfo_getVolumeHandler= {getVolumeHandler,
 FMC_STATIC FmRxOpCurHandler getAfSwitchModeHandler[] = {HandleGetAfSwitchModeStartEnd};
 FMC_STATIC _FmRxSmCmdInfo _fmRxSmCmdInfo_getAfSwitchModeHandler= {getAfSwitchModeHandler, 
                                                         sizeof(getAfSwitchModeHandler) / sizeof(FmRxOpCurHandler)};
-#if 0 /* warning removal - unused code (yet) */
+#ifdef USE_AUDIO_ROUTING
+/* warning removal - unused code (yet) */
 FMC_STATIC FmRxOpCurHandler getAudioRoutingModeHandler[] = {HandleGetAudioRoutingModeStartEnd};
 FMC_STATIC _FmRxSmCmdInfo _fmRxSmCmdInfo_getAudioRoutingModeHandler= {getAudioRoutingModeHandler, 
                                                         sizeof(getAudioRoutingModeHandler) / sizeof(FmRxOpCurHandler)};
-#endif /* 0 - warning removal - unused code (yet) */
+#endif
 
 FMC_STATIC _FmRxSmCmdInfo fmOpAllHandlersArray[FM_RX_LAST_CMD] ;
 
@@ -4636,7 +4638,8 @@ void HandleGetAfSwitchModeStartEnd(void)
 /*******************************************************************************************************************
  *                  
  *******************************************************************************************************************/
-#if 0 /* warning removal - unused code (yet) */
+#ifdef USE_AUDIO_ROUTING
+/* warning removal - unused code (yet) */
 void HandleGetAudioRoutingModeStartEnd(void)
 {
     
@@ -4645,7 +4648,7 @@ void HandleGetAudioRoutingModeStartEnd(void)
     _fmRxSmData.currCmdInfo.status = FM_RX_STATUS_SUCCESS;
     _FM_RX_SM_HandleCompletionOfCurrCmd(NULL,NULL,NULL,FM_RX_EVENT_CMD_DONE);
 }
-#endif /* 0 - warning removal - unused code (yet) */
+#endif
 /*******************************************************************************************************************
  *                  
  *******************************************************************************************************************/

@@ -51,6 +51,9 @@
 #ifdef ANDROID
 /* lib_alsa ALSA Include */
 #include "asoundlib.h"
+/* non alsa ? */
+#define USE_AUDIO_ROUTING
+#define USE_AF_MODE
 #endif
 
 /* local app */
@@ -98,10 +101,10 @@ static FmTxRdsTransmittedGroupsMask g_fmapp_tx_rds_transmitted_groups_mask;
 static FmcRdsMusicSpeechFlag g_fmapp_tx_music_speech_flag;
 static FmRxCmdType	g_fmapp_audio;
 
-/*
-fm_status set_fmapp_audio_routing(fm_rx_context_s *);
-fm_status unset_fmapp_audio_routing(fm_rx_context_s *);
-*/
+#ifdef USE_AUDIO_ROUTING
+fm_status FM_RX_SetAudioRouting(fm_rx_context_s *fm_context, FmcAudioRouteMask value);
+fm_status FM_RX_GetAudioRouting(fm_rx_context_s *fm_context);
+#endif
 
 #define STATUS_DBG_STR(x)						\
 		g_fmapp_rxtx_mode == FMAPP_TX_MODE ?			\
@@ -336,7 +339,7 @@ static void fmapp_display_rds_af_switch(FMC_U32 value)
 	FMAPP_END();
 }
 
-#if 0
+#ifdef USE_AUDIO_ROUTING
 static void fmapp_display_audio_routing(FMC_U32 value)
 {
 	FMAPP_BEGIN();
@@ -874,16 +877,6 @@ static void fmapp_rx_cmd_done_handler(fm_rx_status status, FmRxCmdType cmd, FMC_
 		fmapp_display_rds_af_switch(value);
 		break;
 
-	case FM_RX_CMD_ENABLE_AUDIO:
-		g_fmapp_audio = FM_RX_CMD_ENABLE_AUDIO;
-		FMAPP_MSG("Audio Enabled");
-		break;
-
-	case FM_RX_CMD_DISABLE_AUDIO:
-		g_fmapp_audio = FM_RX_CMD_DISABLE_AUDIO;
-		FMAPP_MSG("Audio Disabled");
-		break;
-
 	case FM_RX_CMD_DESTROY:
 		FMAPP_MSG("Destroyed");
 		break;
@@ -896,7 +889,7 @@ static void fmapp_rx_cmd_done_handler(fm_rx_status status, FmRxCmdType cmd, FMC_
 		FMAPP_MSG("Digital Audio Configuration Changed");
 		break;
 
-/*
+#ifdef USE_AUDIO_ROUTING
 	case FM_RX_CMD_SET_AUDIO_ROUTING:
 		fmapp_display_audio_routing(g_fmapp_audio_route);
 		break;
@@ -904,8 +897,17 @@ static void fmapp_rx_cmd_done_handler(fm_rx_status status, FmRxCmdType cmd, FMC_
 	case FM_RX_CMD_GET_AUDIO_ROUTING:
 		fmapp_display_audio_routing(value);
 		break;
-*/
+#else
+	case FM_RX_CMD_ENABLE_AUDIO:
+		g_fmapp_audio = FM_RX_CMD_ENABLE_AUDIO;
+		FMAPP_MSG("Audio Enabled");
+		break;
 
+	case FM_RX_CMD_DISABLE_AUDIO:
+		g_fmapp_audio = FM_RX_CMD_DISABLE_AUDIO;
+		FMAPP_MSG("Audio Disabled");
+		break;
+#endif
 	default:
 		FMAPP_ERROR("Received completion event of unknown FM RX command: %u", cmd);
 		break;
@@ -1530,7 +1532,7 @@ fm_status fmapp_set_emphasis_filter(void *fm_context)
 	return ret;
 }
 
-#if 0
+#ifdef USE_AUDIO_ROUTING
 fm_status fmapp_get_audio_routing(fm_rx_context_s *fm_context)
 {
 	fm_status ret = FMC_STATUS_SUCCESS;
@@ -1546,32 +1548,52 @@ fm_status fmapp_get_audio_routing(fm_rx_context_s *fm_context)
 	return ret;
 }
 
-fm_status fmapp_set_audio_routing(fm_rx_context_s *fm_context)
+fm_status fmapp_set_audio_routing(fm_rx_context_s *fm_context, char interactive, char *cmd, int *index)
 {
 	fm_status ret = FMC_STATUS_SUCCESS;
 	FMAPP_BEGIN();
 
-	switch (g_fmapp_audio_route) {
-	case FMC_AUDIO_ROUTE_MASK_NONE:
-		g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_I2S;
-		break;
-	case FMC_AUDIO_ROUTE_MASK_I2S:
-		g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_ANALOG;
-		break;
-	case FMC_AUDIO_ROUTE_MASK_ANALOG:
-		g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_ALL;
-		break;
-	case FMC_AUDIO_ROUTE_MASK_ALL:
-	default:
-		g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_NONE;
-		break;
+	if (cmd) {
+		switch (*cmd) {
+		case 'i':
+			g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_I2S;
+			break;
+		case 'a':
+			g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_ANALOG;
+			break;
+		case 'g':
+			g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_ALL;
+			break;
+		default:
+			g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_NONE;
+		}
+
+	} else {
+		/* rotate mode */
+		switch (g_fmapp_audio_route) {
+		case FMC_AUDIO_ROUTE_MASK_NONE:
+			g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_I2S;
+			break;
+		case FMC_AUDIO_ROUTE_MASK_I2S:
+			g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_ANALOG;
+			break;
+		case FMC_AUDIO_ROUTE_MASK_ANALOG:
+			g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_ALL;
+			break;
+		case FMC_AUDIO_ROUTE_MASK_ALL:
+		default:
+			g_fmapp_audio_route = FMC_AUDIO_ROUTE_MASK_NONE;
+			break;
+		}
 	}
 
 	FMAPP_TRACE("setting %d", g_fmapp_audio_route);
 
 	ret = FM_RX_SetAudioRouting(fm_context, g_fmapp_audio_route);
-	if (ret != FMC_STATUS_PENDING && ret != FMC_STATUS_SUCCESS)
+	if (ret != FMC_STATUS_PENDING && ret != FMC_STATUS_SUCCESS) {
 		FMAPP_ERROR("failed to set audio routing mask (%s)", STATUS_DBG_STR(ret));
+		FMAPP_ERROR("possible choices are i:I2S a:Analog g:All n:None");
+	}
 	else
 		ret = FMC_STATUS_SUCCESS;
 
@@ -2046,7 +2068,7 @@ fm_status fmapp_change_rds_mode(void *fm_context)
 	return ret;
 }
 
-#if 0
+#ifdef USE_AF_MODE
 fm_status fmapp_change_af_mode(fm_rx_context_s *fm_context)
 {
 	fm_status ret = FMC_STATUS_SUCCESS;
@@ -2824,15 +2846,15 @@ void fmapp_show_rx_functionality(void (*printer)(const char *msg))
 	printer("ge get deemphasis filter");
 	printer("d set rf dependent mute");
 	printer("gd get rf dependent mute");
-//	printer("o set audio routing");
-//	printer("go get audio routing");
+	printer("o set audio routing");
+	printer("go get audio routing");
 	printer("z set rds system");
 	printer("gz get rds system");
 	printer("x set rds group mask");
 	printer("gx get rds group mask");
 	printer("c set rds af switch");
 	printer("gc get rds af switch");
-//	printer("a turns AF on/off");
+	printer("a turns AF on/off");
 	printer("l prints AF list");
 	printer("< seek down");
 	printer("> seek up");
@@ -2939,9 +2961,11 @@ fm_status fmapp_execute_rx_get_command(char *cmd, int *index, fm_rx_context_s **
 	case 'd':
 		ret = fmapp_get_rfmute(* fm_context);
 		break;
-//	case 'o':
-//		ret = fmapp_get_audio_routing(*fm_context);
-//		break;
+#ifdef USE_AUDIO_ROUTING
+	case 'o':
+		ret = fmapp_get_audio_routing(*fm_context);
+		break;
+#endif
 	case 'z':
 		ret = fmapp_get_rds_system(*fm_context);
 		break;
@@ -2952,7 +2976,7 @@ fm_status fmapp_execute_rx_get_command(char *cmd, int *index, fm_rx_context_s **
 		ret = fmapp_get_rds_af_switch(*fm_context);
 		break;
 	default:
-		FMAPP_MSG("unknown command; type 'h' for help");
+		FMAPP_MSG("unknown RX get command; type 'h' for help");
 		break;
 	}
 
@@ -2994,9 +3018,11 @@ fm_status fmapp_execute_rx_other_command(char *cmd, int *index, fm_rx_context_s 
 	case 'e':
 		ret = fmapp_set_emphasis_filter(*fm_context);
 		break;
-//	case 'o':
-//		ret = fmapp_set_audio_routing(*fm_context, interactive,cmd+1,index);
-//		break;
+#ifdef USE_AUDIO_ROUTING
+	case 'o':
+		ret = fmapp_set_audio_routing(*fm_context, interactive, cmd+1, index);
+		break;
+#endif
 	case 'z':
 		ret = fmapp_set_rds_system(*fm_context);
 		break;
@@ -3013,9 +3039,11 @@ fm_status fmapp_execute_rx_other_command(char *cmd, int *index, fm_rx_context_s 
 	case '*':
 		ret = fmapp_change_rxtx_mode();
 		break;
-//	case 'a':
-//		ret = fmapp_change_af_mode(*fm_context);
-//		break;
+#ifdef USE_AF_MODE
+	case 'a':
+		ret = fmapp_change_af_mode(*fm_context);
+		break;
+#endif
 	case 'p':
 		ret = fmapp_change_power_mode((void **) fm_context);
 		break;
@@ -3042,7 +3070,7 @@ fm_status fmapp_execute_rx_other_command(char *cmd, int *index, fm_rx_context_s 
 		fmapp_show_rx_functionality(fmapp_interactive_printer);
 		break;
 	default:
-		FMAPP_MSG("unknown command; type 'h' for help");
+		FMAPP_MSG("unknown RX command; type 'h' for help");
 		break;
 	}
 
@@ -3206,7 +3234,7 @@ fm_status fmapp_execute_tx_other_command(char *cmd, int *index, fm_tx_context_s 
 		fmapp_show_tx_functionality(fmapp_interactive_printer);
 		break;
 	default:
-		FMAPP_MSG("unknown command; type 'h' for help");
+		FMAPP_MSG("unknown TX command; type 'h' for help");
 		break;
 	}
 
@@ -3612,9 +3640,14 @@ int main(int argc, char **argv)
 
 	/* main body */
 	/* enjoy the music */
-	while (g_keep_running) {
+	sequence_len = sizeof(buffer);
+	while (g_keep_running && sequence_len >= 0) {
+		memset(buffer, 0, sequence_len);
 		fgets(buffer, sizeof(buffer), stdin);
-		fmapp_execute_command(buffer, 0, &fm_context, FMAPP_INTERACTIVE);
+		sequence_len = strlen(buffer);
+		if (sequence_len > 0) {
+			fmapp_execute_command(buffer, 0, &fm_context, FMAPP_INTERACTIVE);
+		}
 	}
 
 disable:
@@ -3655,6 +3688,28 @@ const char *control_elements_of_interest[] = {
                  snd_ctl_close(ctl); \
                  return FMC_STATUS_FAILED; \
              }
+
+
+#ifdef USE_AUDIO_ROUTING
+fm_status FM_RX_SetAudioRouting(fm_rx_context_s *fm_context, FmcAudioRouteMask value)
+{
+     fm_status ret = FMC_STATUS_SUCCESS;
+     FMAPP_BEGIN();
+     FMAPP_MSG("%s(%d) stub to implement", __FUNCTION__, value);
+     FMAPP_END();
+     return ret;
+}
+
+fm_status FM_RX_GetAudioRouting(fm_rx_context_s *fm_context)
+{
+     fm_status ret = FMC_STATUS_SUCCESS;
+     FMAPP_BEGIN();
+     FMAPP_MSG("%s stub to implement", __FUNCTION__);
+     FMAPP_END();
+     return ret;
+}
+#endif
+
 /* TODO:
  * replace the hard-coded _enumerated/_boolean/_integer by
  * something better, also remove the hard-coded values_of_control

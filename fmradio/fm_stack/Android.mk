@@ -23,11 +23,11 @@ LOCAL_C_INCLUDES:=\
 	$(LOCAL_PATH)/HSW_FMStack/stack/inc/int \
 	$(LOCAL_PATH)/HSW_FMStack/stack/inc 	\
 	system/bluetooth/bluez-clean-headers \
-	$(LOCAL_PATH)/FM_Trace 
+	$(LOCAL_PATH)/FM_Trace
 
 
-LOCAL_CFLAGS:= -g -c -W -Wall -O2 -D_POSIX_SOURCE -DANDROID 
-LOCAL_CFLAGS+= -DANDROID 
+LOCAL_CFLAGS:= -g -c -W -Wall -O2 -D_POSIX_SOURCE -DANDROID
+LOCAL_CFLAGS+= -DFM_LOG_FOLDER="\"/data/logger/\""
 
 ifdef SEMC_CFG_FMRADIO_SEARCH_LVL
 LOCAL_CFLAGS+= -DSEMC_CONFIG_RX_SEARCH_LVL=$(SEMC_CFG_FMRADIO_SEARCH_LVL)
@@ -41,7 +41,7 @@ LOCAL_SRC_FILES:= \
 	MCP_Common/Platform/fmhal/os/fmc_os.c		\
 	MCP_Common/Platform/os/linux/mcp_hal_fs.c      \
 	MCP_Common/Platform/os/linux/mcp_hal_log.c	\
-   	MCP_Common/Platform/os/linux/mcp_hal_string.c	\
+	MCP_Common/Platform/os/linux/mcp_hal_string.c	\
 	MCP_Common/Platform/os/linux/mcp_hal_memory.c  	\
 	MCP_Common/Platform/os/linux/mcp_linux_line_parser.c	\
 	MCP_Common/Platform/os/linux/mcp_hal_misc.c    	\

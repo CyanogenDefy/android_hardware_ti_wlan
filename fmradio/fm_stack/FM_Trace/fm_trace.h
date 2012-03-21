@@ -50,8 +50,11 @@
 #define FM_TRACE_TO_APP_LOGFILE		(8)
 #define FM_TRACE_TO_APP_LOG_ERR		(10)
 
-#define FM_STACK_LOG_FILE		"fmstack.log"
-#define FM_APP_LOG_FILE			"fmapp.log"
+#ifndef FM_LOG_FOLDER
+#define FM_LOG_FOLDER "/tmp/"
+#endif
+#define FM_STACK_LOG_FILE		FM_LOG_FOLDER "fmstack.log"
+#define FM_APP_LOG_FILE			FM_LOG_FOLDER "fmapp.log"
 
 #define FM_ERR_BUF			_fm_trace_error_buffer
 #define FM_TRACE_LVL_VAR		_fm_func_trace_level

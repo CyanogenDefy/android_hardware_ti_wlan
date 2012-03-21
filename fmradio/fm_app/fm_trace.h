@@ -4,17 +4,17 @@
  * Copyright 2001-2008 Texas Instruments, Inc. - http://www.ti.com/
  *
  *  Written by Ohad Ben-Cohen <ohad@bencohen.org>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and  
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
@@ -50,8 +50,11 @@
 #define FM_TRACE_TO_APP_LOGFILE		(8)
 #define FM_TRACE_TO_APP_LOG_ERR		(10)
 
-#define FM_STACK_LOG_FILE		"fmstack.log"
-#define FM_APP_LOG_FILE			"fmapp.log"
+#ifndef FM_LOG_FOLDER
+#define FM_LOG_FOLDER "/tmp/"
+#endif
+#define FM_STACK_LOG_FILE		FM_LOG_FOLDER "fmstack.log"
+#define FM_APP_LOG_FILE			FM_LOG_FOLDER "fmapp.log"
 
 #define FM_ERR_BUF			_fm_trace_error_buffer
 #define FM_TRACE_LVL_VAR		_fm_func_trace_level

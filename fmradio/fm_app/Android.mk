@@ -27,6 +27,7 @@ LOCAL_C_INCLUDES:=\
 
 
 LOCAL_CFLAGS:= -g -c -W -Wall -O2 -D_POSIX_SOURCE
+LOCAL_CFLAGS+= -DANDROID -DFM_LOG_FOLDER="\"/data/logger/\""
 
 LOCAL_SRC_FILES:= \
 fm_app.c fm_trace.c

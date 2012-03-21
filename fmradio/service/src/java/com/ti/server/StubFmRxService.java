@@ -66,7 +66,7 @@ import com.ti.jfm.core.*;
  * There is a single instance of this class that is created during system
  * startup as part of the system server. The class exposes its services via
  * IFmReceiver.aidl.
- * 
+ *
  * @hide
  *************************************************************************************************/
 
@@ -179,8 +179,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			// create a single new JFmRx instance
 			mJFmRx = new JFmRx();
 		} catch (Exception e) {
-			Log.e(TAG, "init: Exception thrown during init (" + e.toString()
-					+ ")");
+			Log.e(TAG, "init: Exception thrown during init (" + e.toString() + ")");
 			return;
 		}
 
@@ -196,8 +195,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		PowerManager powerManager = (PowerManager) mContext
 				.getSystemService(Context.POWER_SERVICE);
 		if (powerManager != null) {
-			mWakeLock = powerManager.newWakeLock(
-					PowerManager.PARTIAL_WAKE_LOCK, TAG);
+			mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 		} else {
 			Log.e(TAG, "Failed to get Power Manager.");
 			mWakeLock = null;
@@ -222,11 +220,8 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		try {
 			mJFmRx = null;
 		} catch (Exception e) {
-			Log.e(TAG, "init: Exception thrown during close (" + e.toString()
-					+ ")");
-			return;
+			Log.e(TAG, "init: Exception thrown during close (" + e.toString() + ")");
 		}
-
 	}
 
 	/*************************************************************************************************
@@ -234,10 +229,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	 *************************************************************************************************/
 
 	public boolean isEnabled() {
-		mContext.enforceCallingOrSelfPermission(FMRX_PERM,
-				"Need FMRX_PERM permission");
-		return (mState == FmReceiver.STATE_ENABLED);
+		mContext.enforceCallingOrSelfPermission(FMRX_PERM, "Need FMRX_PERM permission");
 
+		return (mState == FmReceiver.STATE_ENABLED);
 	}
 
 	/*************************************************************************************************
@@ -245,8 +239,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	 *************************************************************************************************/
 
 	public int getFMState() {
-		mContext.enforceCallingOrSelfPermission(FMRX_PERM,
-				"Need FMRX_PERM permission");
+		mContext.enforceCallingOrSelfPermission(FMRX_PERM, "Need FMRX_PERM permission");
 
 		return mState;
 	}
@@ -259,11 +252,8 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		int nReturnVal;
 
 		if ((a > 65535) || (a < 0)) {
-			if (DBG)
-				Log
-						.d(
-								TAG,
-								"  convertUnsignedToSignedInt: Error in conversion from Unsigned to nSigned Integer");
+			if (DBG) Log.d(TAG,
+				"  convertUnsignedToSignedInt: Error in conversion from Unsigned to nSigned Integer");
 			nReturnVal = 0;
 			return nReturnVal;
 		}
@@ -279,14 +269,12 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public boolean create() {
 
 		// Always call create
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
 				"Need FMRX_ADMIN_PERM permission");
 		try {
-
 			/*
 			 * resister for the master Volume control Intent and music/video
 			 * playback
@@ -297,20 +285,14 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mContext.registerReceiver(mFmRxIntentReceiver, mIntentFilter);
 
 			JFmRxStatus status = mJFmRx.create(this);
-			if (DBG)
-				Log
-						.i(TAG, "mJFmRx.create returned status "
-								+ status.toString());
+			if (DBG) Log.i(TAG, "mJFmRx.create returned status " + status.toString());
 
 			if (JFmRxStatus.SUCCESS != status) {
-				Log
-						.e(TAG, "mJFmRx.create returned status "
-								+ status.toString());
+				Log.e(TAG, "mJFmRx.create returned status " + status.toString());
 				return false;
 			}
 		} catch (Exception e) {
-			Log.e(TAG, "create: Exception thrown during create ("
-					+ e.toString() + ")");
+			Log.e(TAG, "create: Exception thrown during create (" + e.toString() + ")");
 			return false;
 		}
 
@@ -333,31 +315,23 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		}
 		try {
 			JFmRxStatus status = mJFmRx.enable();
-			if (DBG)
-				Log
-						.i(TAG, "mJFmRx.enable returned status "
-								+ status.toString());
+			if (DBG) Log.i(TAG, "mJFmRx.enable returned status " + status.toString());
 			if (JFmRxStatus.PENDING != status) {
-				Log
-						.e(TAG, "mJFmRx.enable returned status "
-								+ status.toString());
+				Log.e(TAG, "mJFmRx.enable returned status " + status.toString());
 				return false;
 			}
 		} catch (Exception e) {
-			Log.e(TAG, "enable: Exception thrown during enable ("
-					+ e.toString() + ")");
+			Log.e(TAG, "enable: Exception thrown during enable ("+ e.toString() + ")");
 			return false;
 		}
 		mState = FmReceiver.STATE_ENABLING;
 
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public boolean destroy() {
 
 		isFmCreated = false;
@@ -490,8 +464,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mSetBandSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mSetBandSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean setBand(int band) {
 		mCurrentBand = band;
@@ -513,12 +486,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 
 			mSetBandSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.setBand(lBand);
-			if (DBG)
-				Log.d(TAG, "mJFmRx.setBand returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.setBand returned status " + status.toString());
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.setBand returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.setBand returned status " + status.toString());
 				return false;
 			}
 
@@ -527,7 +497,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			try {
 				String syncString = mSetBandSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -538,18 +508,15 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return false;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:setBand():--------- Exiting... ");
-		return true;
+		if (DBG) Log.d(TAG, "StubFmRxService:setBand():--------- Exiting... ");
 
+		return true;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mBandSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mBandSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getBand() {
 
@@ -563,12 +530,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 				&& (mIsCompleteScanInProgress == false)) {
 			mBandSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getBand();
-			if (DBG)
-				Log.d(TAG, "mJFmRx.getBand returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.getBand returned status " + status.toString());
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.getBand returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getBand returned status " + status.toString());
 				return 0;
 			}
 
@@ -577,7 +541,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			try {
 				String syncString = mBandSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -588,21 +552,18 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:getBand():--------- Exiting... ");
-		return getBandValue;
+		if (DBG) Log.d(TAG, "StubFmRxService:getBand():--------- Exiting... ");
 
+		return getBandValue;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public boolean setMonoStereoMode(int mode) {
 
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "setMonoStereoMode: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "setMonoStereoMode: failed, fm not enabled  state " + mState);
 			return false;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -612,17 +573,13 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			JFmRx.JFmRxMonoStereoMode lMode = JFmUtils.getEnumConst(
 					JFmRx.JFmRxMonoStereoMode.class, mode);
 			if (lMode == null) {
-				Log.e(TAG, "StubFmRxService:setMonoStereoMode invalid  lBand "
-						+ lMode);
+				Log.e(TAG, "StubFmRxService:setMonoStereoMode invalid  lBand " + lMode);
 				return false;
 			}
 			JFmRxStatus status = mJFmRx.setMonoStereoMode(lMode);
-			if (DBG)
-				Log.d(TAG, "mJFmRx.setMonoStereoMode returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.setMonoStereoMode returned status " + status.toString());
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.setMonoStereoMode returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.setMonoStereoMode returned status " + status.toString());
 				return false;
 			}
 
@@ -631,23 +588,19 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			return false;
 		}
 
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:setMonoStereoMode exiting");
-		return true;
+		if (DBG) Log.d(TAG, "StubFmRxService:setMonoStereoMode exiting");
 
+		return true;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mMonoStereoModeSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mMonoStereoModeSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getMonoStereoMode() {
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "getMonoStereoMode: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "getMonoStereoMode: failed, fm not enabled  state " + mState);
 			return 0;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -656,12 +609,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 				&& (mIsCompleteScanInProgress == false)) {
 			mMonoStereoModeSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getMonoStereoMode();
-			if (DBG)
-				Log.d(TAG, "mJFmRx.getMonoStereoMode returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.getMonoStereoMode returned status " + status.toString());
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.getMonoStereoMode returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getMonoStereoMode returned status " + status.toString());
 				return 0;
 			}
 
@@ -669,7 +619,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			try {
 				String syncString = mMonoStereoModeSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -681,21 +631,15 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log
-					.d(TAG,
-							"StubFmRxService:getMonoStereoMode(): -------- Exiting ");
+		if (DBG) Log.d(TAG, "StubFmRxService:getMonoStereoMode(): -------- Exiting ");
 
 		return getMonoStereoModeValue;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mSetMuteModeSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mSetMuteModeSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean setMuteMode(int muteMode) {
 		if (mState != FmReceiver.STATE_ENABLED) {
@@ -709,18 +653,14 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			JFmRx.JFmRxMuteMode lMode = JFmUtils.getEnumConst(
 					JFmRx.JFmRxMuteMode.class, muteMode);
 			if (lMode == null) {
-				Log.e(TAG, "StubFmRxService:setMuteMode invalid  lBand "
-						+ lMode);
+				Log.e(TAG, "StubFmRxService:setMuteMode invalid  lBand " + lMode);
 				return false;
 			}
 			mSetMuteModeSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.setMuteMode(lMode);
-			if (DBG)
-				Log.d(TAG, "mJFmRx.SetMuteMode returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.SetMuteMode returned status " + status.toString());
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.SetMuteMode returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.SetMuteMode returned status " + status.toString());
 				return false;
 			}
 
@@ -745,7 +685,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			try {
 				String syncString = mSetMuteModeSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string received: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -756,8 +696,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return false;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:SetMuteMode exiting");
+		if (DBG) Log.d(TAG, "StubFmRxService:SetMuteMode exiting");
 
 		mCurrentMuteMode = muteMode;
 		return true;
@@ -767,9 +706,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mMuteModeSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mMuteModeSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getMuteMode() {
 		if (mState != FmReceiver.STATE_ENABLED) {
@@ -782,12 +719,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 				&& (mIsCompleteScanInProgress == false)) {
 			mMuteModeSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getMuteMode();
-			if (DBG)
-				Log.d(TAG, "mJFmRx.getMuteMode returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.getMuteMode returned status " + status.toString());
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.getMuteMode returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getMuteMode returned status " + status.toString());
 				return 0;
 			}
 
@@ -795,7 +729,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			try {
 				String syncString = mMuteModeSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -807,22 +741,18 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:getMuteMode(): -------- Exiting... ");
+		if (DBG) Log.d(TAG, "StubFmRxService:getMuteMode(): -------- Exiting... ");
 		return getMuteModeValue;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mSetRfDependentMuteModeSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mSetRfDependentMuteModeSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean setRfDependentMuteMode(int rfMuteMode) {
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "setRfDependentMuteMode: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "setRfDependentMuteMode: failed, fm not enabled  state " + mState);
 			return false;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -832,37 +762,28 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			JFmRx.JFmRxRfDependentMuteMode lrfMute = JFmUtils.getEnumConst(
 					JFmRx.JFmRxRfDependentMuteMode.class, rfMuteMode);
 			if (lrfMute == null) {
-				Log.e(TAG,
-						"StubFmRxService:setRfDependentMuteMode invalid  lrfMute "
-								+ lrfMute);
+				Log.e(TAG, "StubFmRxService:setRfDependentMuteMode invalid  lrfMute " + lrfMute);
 				return false;
 			}
 
 			mSetRfDependentMuteModeSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.setRfDependentMuteMode(lrfMute);
-			if (DBG)
-				Log.d(TAG, "mJFmRx.setRfDependentMuteMode returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.setRfDependentMuteMode returned status " + status.toString());
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.setRfDependentMuteMode returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.setRfDependentMuteMode returned status " + status.toString());
 				return false;
 			}
 
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
 			try {
-				Log
-						.i(TAG,
-								"StubFmRxService:setRfDependentMuteMode(): -------- Waiting... ");
+				Log.i(TAG, "StubFmRxService:setRfDependentMuteMode(): -------- Waiting... ");
 				String syncString = mSetRfDependentMuteModeSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
-				Log
-						.e(TAG,
-								"mJFmRx.setRfDependentMuteMode-- Wait() s Exception!!!");
+				Log.e(TAG, "mJFmRx.setRfDependentMuteMode-- Wait() s Exception!!!");
 				return false;
 			}
 
@@ -870,23 +791,18 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return false;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:setRfDependentMuteMode exiting");
+		if (DBG) Log.d(TAG, "StubFmRxService:setRfDependentMuteMode exiting");
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mRfDependentMuteModeSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mRfDependentMuteModeSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getRfDependentMuteMode() {
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "getRfDependentMuteMode: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "getRfDependentMuteMode: failed, fm not enabled  state " + mState);
 			return 0;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -895,74 +811,54 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 				&& (mIsCompleteScanInProgress == false)) {
 			mRfDependentMuteModeSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getRfDependentMute();
-			if (DBG)
-				Log.d(TAG, "mJFmRx.getRfDependentMuteMode returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.getRfDependentMuteMode returned status " + status.toString());
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.getRfDependentMuteMode returned status "
-						+ status.toString());
-
+				Log.e(TAG, "mJFmRx.getRfDependentMuteMode returned status " + status.toString());
 				return 0;
 			}
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
 			try {
 				String syncString = mRfDependentMuteModeSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
-				Log
-						.e(TAG,
-								"mJFmRx.getRfDependentMuteMode-- Wait() s Exception!!!");
+				Log.e(TAG, "mJFmRx.getRfDependentMuteMode-- Wait() s Exception!!!");
 				return 0;
 			}
-
 		} else {
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log
-					.d(TAG,
-							"StubFmRxService:getRfDependentMuteMode(): --------- Exiting... ");
+		if (DBG) Log.d(TAG, "StubFmRxService:getRfDependentMuteMode(): --------- Exiting... ");
 		return getRfDependentMuteModeValue;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mSetRssiThresholdSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mSetRssiThresholdSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean setRssiThreshold(int threshhold) {
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "setRssiThreshold: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "setRssiThreshold: failed, fm not enabled  state " + mState);
 			return false;
 		}
-		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
-				"Need FMRX_ADMIN_PERM permission");
+		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM, "Need FMRX_ADMIN_PERM permission");
 		if ((mIsSeekInProgress == false) && (mIsTuneInProgress == false)
 				&& (mIsCompleteScanInProgress == false)) {
 			JFmRx.JFmRxRssi lrssiThreshhold = new JFmRx.JFmRxRssi(threshhold);
 			if (lrssiThreshhold == null) {
-				Log.e(TAG, "StubFmRxService:setRssiThreshold invalid rssi "
-						+ lrssiThreshhold);
+				Log.e(TAG, "StubFmRxService:setRssiThreshold invalid rssi " + lrssiThreshhold);
 				return false;
 			}
-			if (DBG)
-				Log.d(TAG, "StubFmRxService:setRssiThreshold  "
-						+ lrssiThreshhold);
+			if (DBG) Log.d(TAG, "StubFmRxService:setRssiThreshold  " + lrssiThreshhold);
 			mSetRssiThresholdSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.setRssiThreshold(lrssiThreshhold);
-			if (DBG)
-				Log.d(TAG, "mJFmRx.setRssiThreshold returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.setRssiThreshold returned status " + status);
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.setRssiThreshold returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.setRssiThreshold returned status " + status);
 				return false;
 			}
 
@@ -973,7 +869,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 								"StubFmRxService:setRssiThreshold(): -------- Waiting... ");
 				String syncString = mSetRssiThresholdSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -985,24 +881,19 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return false;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:setRssiThreshold exiting");
+		if (DBG) Log.d(TAG, "StubFmRxService:setRssiThreshold exiting");
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mRssiThresholdSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mRssiThresholdSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getRssiThreshold() {
 
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "getRssiThreshold: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "getRssiThreshold: failed, fm not enabled  state " + mState);
 			return 0;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -1012,11 +903,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mRssiThresholdSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getRssiThreshold();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.getRssiThreshold returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.getRssiThreshold returned status " + status);
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.getRssiThreshold returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getRssiThreshold returned status " + status);
 				return 0;
 			}
 
@@ -1024,7 +913,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			try {
 				String syncString = mRssiThresholdSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -1035,24 +924,19 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log.d(TAG,
-					"StubFmRxService:getRssiThreshold(): ---------- Exiting ");
-		return getRssiThresholdValue;
+		if (DBG) Log.d(TAG, "StubFmRxService:getRssiThreshold(): ---------- Exiting ");
 
+		return getRssiThresholdValue;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mSetDeEmphasisFilterSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mSetDeEmphasisFilterSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean setDeEmphasisFilter(int filter) {
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "setDeEmphasisFilter: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "setDeEmphasisFilter: failed, fm not enabled  state " + mState);
 			return false;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -1062,59 +946,47 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			JFmRx.JFmRxEmphasisFilter lFilter = JFmUtils.getEnumConst(
 					JFmRx.JFmRxEmphasisFilter.class, filter);
 			if (lFilter == null) {
-				Log.e(TAG,
-						"StubFmRxService:setDeEmphasisFilter invalid  lBand "
-								+ lFilter);
+				Log.e(TAG, "StubFmRxService:setDeEmphasisFilter invalid  lBand:" + lFilter);
 				return false;
 			}
 			mSetDeEmphasisFilterSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.SetDeEmphasisFilter(lFilter);
 			if (DBG)
-				Log.d(TAG, "mJFmRx.setDeEmphasisFilter returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.setDeEmphasisFilter returned status " + status);
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.setDeEmphasisFilter returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.setDeEmphasisFilter returned status " + status);
 				return false;
 			}
 
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
 			try {
-				Log
-						.i(TAG,
-								"StubFmRxService:setDeEmphasisFilter(): -------- Waiting... ");
+				Log.i(TAG, "StubFmRxService:setDeEmphasisFilter(): -------- Waiting... ");
 				String syncString = mSetDeEmphasisFilterSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
-				Log
-						.e(TAG,
-								"mJFmRx.setDeEmphasisFilter-- Wait() s Exception!!!");
+				Log.e(TAG, "mJFmRx.setDeEmphasisFilter-- Wait() s Exception!!!");
 				return false;
 			}
 		} else {
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return false;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:setDeEmphasisFilter exiting");
-		return true;
+		if (DBG) Log.d(TAG, "StubFmRxService:setDeEmphasisFilter exiting");
 
+		return true;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mDeEmphasisFilterSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mDeEmphasisFilterSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getDeEmphasisFilter() {
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "getDeEmphasisFilter: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "getDeEmphasisFilter: failed, fm not enabled  state " + mState);
 			return 0;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -1124,41 +996,33 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mDeEmphasisFilterSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.GetDeEmphasisFilter();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.getDeEmphasisFilter returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.getDeEmphasisFilter returned status " + status);
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.getDeEmphasisFilter returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getDeEmphasisFilter returned status " + status);
 				return 0;
 			}
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
 			try {
 				String syncString = mDeEmphasisFilterSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
-				Log
-						.e(TAG,
-								"mJFmRx.getDeEmphasisFilter-- Wait() s Exception!!!");
+				Log.e(TAG, "mJFmRx.getDeEmphasisFilter-- Wait() s Exception!!!");
 				return 0;
 			}
 		} else {
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log.d(TAG,
-					"StubFmRxService:getDeEmphasisFilter(): -------- Exiting ");
+		if (DBG) Log.d(TAG, "StubFmRxService:getDeEmphasisFilter(): -------- Exiting ");
 		return getDeEmphasisFilterValue;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	private boolean setVolume(int volume) {
 		if (mState != FmReceiver.STATE_ENABLED) {
 			Log.e(TAG, "setVolume: failed, fm not enabled  state " + mState);
@@ -1177,11 +1041,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 
 				JFmRxStatus status = mJFmRx.setVolume(lVolume);
 				if (DBG)
-					Log.d(TAG, "mJFmRx.setVolume returned status "
-							+ status.toString());
+					Log.d(TAG, "mJFmRx.setVolume returned status " + status);
 				if (JFmRxStatus.PENDING != status) {
-					Log.e(TAG, "mJFmRx.setVolume returned status "
-							+ status.toString());
+					Log.e(TAG, "mJFmRx.setVolume returned status " + status);
 					return false;
 				}
 
@@ -1194,14 +1056,12 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mSetChannelSpacingSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mSetChannelSpacingSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean setChannelSpacing(int channelSpace) {
 
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "setChannelSpacing: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "setChannelSpacing: failed, fm not enabled  state " + mState);
 			return false;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -1212,29 +1072,22 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 					JFmRx.JFmRxChannelSpacing.class, channelSpace);
 
 			if (lChannelSpace == null) {
-				Log.e(TAG,
-						"StubFmRxService:setChannelSpacing invalid  lChannelSpace "
-								+ lChannelSpace);
+				Log.e(TAG, "StubFmRxService:setChannelSpacing invalid  lChannelSpace:" + lChannelSpace);
 				return false;
 			}
 			mSetChannelSpacingSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.setChannelSpacing(lChannelSpace);
-			if (DBG)
-				Log.d(TAG, "mJFmRx.setChannelSpacing returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.setChannelSpacing returned status " + status);
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.setChannelSpacing returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.setChannelSpacing returned status " + status);
 				return false;
 			}
 
 			try {
-				Log
-						.i(TAG,
-								"StubFmRxService:setChannelSpacing(): -------- Waiting... ");
+				Log.i(TAG, "StubFmRxService:setChannelSpacing(): -------- Waiting... ");
 				String syncString = mSetChannelSpacingSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -1245,18 +1098,15 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return false;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:setChannelSpacing exiting");
-		return true;
+		if (DBG) Log.d(TAG, "StubFmRxService:setChannelSpacing exiting");
 
+		return true;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mVolumeSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mVolumeSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	private synchronized int getVolume() {
 
@@ -1264,19 +1114,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "getVolume: failed, fm not enabled  state " + mState);
 			return 0;
 		}
-		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
-				"Need FMRX_ADMIN_PERM permission");
+		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM, "Need FMRX_ADMIN_PERM permission");
 		if ((mIsSeekInProgress == false) && (mIsTuneInProgress == false)
 				&& (mIsCompleteScanInProgress == false)) {
 			mVolumeSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getVolume();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.getVolume returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.getVolume returned status " + status);
 
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.getVolume returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getVolume returned status " + status);
 				return 0;
 			}
 
@@ -1284,7 +1131,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			try {
 				String syncString = mVolumeSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -1295,23 +1142,19 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:getVolume(): -------- Exiting... ");
-		return getVolumeValue;
+		if (DBG) Log.d(TAG, "StubFmRxService:getVolume(): -------- Exiting... ");
 
+		return getVolumeValue;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mChannelSpacingSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mChannelSpacingSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getChannelSpacing() {
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "getChannelSpacing: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "getChannelSpacing: failed, fm not enabled  state " + mState);
 			return 0;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -1321,12 +1164,10 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mChannelSpacingSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getChannelSpacing();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.getChannelSpacing returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.getChannelSpacing returned status " + status);
 
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.getChannelSpacing returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getChannelSpacing returned status " + status);
 				return 0;
 			}
 
@@ -1334,7 +1175,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			try {
 				String syncString = mChannelSpacingSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -1365,7 +1206,6 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public boolean tune(int freq) {
 
 		mCurrentFrequency = freq;
@@ -1374,37 +1214,33 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			return false;
 		}
 		if (freq < BaseFreq() || freq > LastFreq()) {
-			Log.e(TAG, "StubFmRxService:tune invalid frequency not in range "
-					+ freq);
+			Log.e(TAG, "StubFmRxService:tune invalid frequency not in range "+ freq);
 			return false;
 		}
-		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
-				"Need FMRX_ADMIN_PERM permission");
+		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM, "Need FMRX_ADMIN_PERM permission");
+
 		JFmRx.JFmRxFreq lFreq = new JFmRx.JFmRxFreq(freq);
 		if (lFreq == null) {
 			Log.e(TAG, "StubFmRxService:tune invalid frequency " + lFreq);
 			return false;
 		}
-		if(DBG)
-			Log.d(TAG, "StubFmRxService:tune  " + lFreq);
+		if(DBG) Log.d(TAG, "StubFmRxService:tune " + lFreq);
 		JFmRxStatus status = mJFmRx.tune(lFreq);
-		if (DBG)
-			Log.d(TAG, "mJFmRx.tune returned status " + status.toString());
+		if (DBG) Log.d(TAG, "mJFmRx.tune returned status " + status);
+
 		if (status != JFmRxStatus.PENDING) {
-			Log.e(TAG, "mJFmRx.tune returned status " + status.toString());
+			Log.e(TAG, "mJFmRx.tune returned status " + status);
 			return false;
 		}
 		mIsTuneInProgress = true;
-		return true;
 
+		return true;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mTunedFrequencySyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mTunedFrequencySyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getTunedFrequency() {
 		if (mState != FmReceiver.STATE_ENABLED) {
@@ -1419,19 +1255,17 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mTunedFrequencySyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getTunedFrequency();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.getTunedFrequency returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.getTunedFrequency returned status " + status.toString());
 
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.getTunedFrequency returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getTunedFrequency returned status " + status.toString());
 				return 0;
 			}
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
 			try {
 				String syncString = mTunedFrequencySyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -1442,16 +1276,14 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:getTunedFrequency(): ------- Exiting ");
-		return getTunedFrequencyValue;
+		if (DBG) Log.d(TAG, "StubFmRxService:getTunedFrequency(): ------- Exiting ");
 
+		return getTunedFrequencyValue;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public boolean seek(int direction) {
 		if (mState != FmReceiver.STATE_ENABLED) {
 			Log.e(TAG, "seek: failed, fm not enabled  state " + mState);
@@ -1484,8 +1316,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mStopSeekSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mStopSeekSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean stopSeek() {
 		if (mState != FmReceiver.STATE_ENABLED) {
@@ -1499,8 +1330,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mStopSeekSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.stopSeek();
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.stopSeek returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.stopSeek returned status " + status.toString());
 				return false;
 			}
 
@@ -1508,7 +1338,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 				Log.i(TAG, "StubFmRxService:stopSeek(): -------- Waiting... ");
 				String syncString = mStopSeekSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -1520,15 +1350,12 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			return false;
 		}
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mRssiSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mRssiSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getRssi() {
 
@@ -1543,18 +1370,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mRssiSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getRssi();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.getRssi returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.getRssi returned status " + status.toString());
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.getRssi returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getRssi returned status " + status.toString());
 				return 0;
 			}
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
 			try {
 				String syncString = mRssiSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -1565,17 +1390,15 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:getRssi(): ---------- Exiting ");
+		if (DBG) Log.d(TAG, "StubFmRxService:getRssi(): ---------- Exiting ");
+
 		return getRssiValue;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mRdsSystemSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mRdsSystemSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getRdsSystem() {
 		if (mState != FmReceiver.STATE_ENABLED) {
@@ -1589,18 +1412,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mRdsSystemSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getRdsSystem();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.getRdsSystem returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.getRdsSystem returned status " + status.toString());
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.getRdsSystem returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getRdsSystem returned status " + status.toString());
 				return 0;
 			}
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
 			try {
 				String syncString = mRdsSystemSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -1611,17 +1432,15 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:getRdsSystem(): ----------- Exiting ");
-		return getRdsSystemValue;
+		if (DBG) Log.d(TAG, "StubFmRxService:getRdsSystem(): ----------- Exiting ");
 
+		return getRdsSystemValue;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mSetRdsSystemSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mSetRdsSystemSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean setRdsSystem(int system) {
 
@@ -1636,8 +1455,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			JFmRx.JFmRxRdsSystem lSystem = JFmUtils.getEnumConst(
 					JFmRx.JFmRxRdsSystem.class, system);
 			if (lSystem == null) {
-				Log.e(TAG, "StubFmRxService:setRdsSystem invalid  lSystem "
-						+ lSystem);
+				Log.e(TAG, "StubFmRxService:setRdsSystem invalid  lSystem " + lSystem);
 				return false;
 			}
 			if (DBG)
@@ -1645,20 +1463,17 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mSetRdsSystemSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.setRdsSystem(lSystem);
 			if (DBG)
-				Log.d(TAG, "mJFmRx.setRdsSystem returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.setRdsSystem returned status " + status.toString());
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.setRdsSystem returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.setRdsSystem returned status " + status.toString());
 				return false;
 			}
 
 			try {
-				Log.i(TAG,
-						"StubFmRxService:setRdsSystem(): -------- Waiting... ");
+				Log.i(TAG, "StubFmRxService:setRdsSystem(): -------- Waiting...");
 				String syncString = mSetRdsSystemSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string received: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -1671,15 +1486,12 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		}
 
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mEnableRdsSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mEnableRdsSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean enableRds() {
 		if (mState != FmReceiver.STATE_ENABLED) {
@@ -1693,11 +1505,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mEnableRdsSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.enableRDS();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.enableRds returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.enableRds returned status " + status.toString());
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.enableRds returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.enableRds returned status " + status.toString());
 				return false;
 			}
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
@@ -1705,7 +1515,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 				Log.d(TAG, "StubFmRxService:enableRds(): -------- Waiting... ");
 				String syncString = mEnableRdsSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string received: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -1716,18 +1526,14 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return false;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:enableRds exiting");
+		if (DBG) Log.d(TAG, "StubFmRxService:enableRds exiting");
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mDisableRdsSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mDisableRdsSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean disableRds() {
 		if (mState != FmReceiver.STATE_ENABLED) {
@@ -1741,21 +1547,17 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mDisableRdsSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.DisableRDS();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.disableRds returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.disableRds returned status " + status.toString());
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.disableRds returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.disableRds returned status " + status.toString());
 				return false;
 			}
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
 			try {
-				Log
-						.i(TAG,
-								"StubFmRxService:disableRds(): -------- Waiting... ");
+				Log.i(TAG, "StubFmRxService:disableRds(): -------- Waiting...");
 				String syncString = mDisableRdsSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string received: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -1766,48 +1568,40 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return false;
 		}
-		if (DBG)
-			Log.d(TAG, "StubFmRxService:disableRds exiting");
-		return true;
+		if (DBG) Log.d(TAG, "StubFmRxService:disableRds exiting");
 
+		return true;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mSetRdsGroupMaskSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mSetRdsGroupMaskSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean setRdsGroupMask(int mask) {
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "setRdsGroupMask: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "setRdsGroupMask: failed, fm not enabled  state " + mState);
 			return false;
 		}
-		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
-				"Need FMRX_ADMIN_PERM permission");
+		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM, "Need FMRX_ADMIN_PERM permission");
+
 		if ((mIsSeekInProgress == false) && (mIsTuneInProgress == false)
 				&& (mIsCompleteScanInProgress == false)) {
 			JFmRx.JFmRxRdsGroupTypeMask lMask = JFmUtils.getEnumConst(
 					JFmRx.JFmRxRdsGroupTypeMask.class, (long) mask);
 			mSetRdsGroupMaskSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.setRdsGroupMask(lMask);
-			if (DBG)
-				Log.d(TAG, "mJFmRx.setRdsGroupMask returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.setRdsGroupMask returned status " + status);
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.setRdsGroupMask returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.setRdsGroupMask returned status " + status);
 				return false;
 			}
 
 			try {
-				Log
-						.i(TAG,
-								"StubFmRxService:setRdsGroupMask(): -------- Waiting... ");
+				Log.i(TAG, "StubFmRxService:setRdsGroupMask(): -------- Waiting...");
 				String syncString = mSetRdsGroupMaskSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string received: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -1819,20 +1613,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			return false;
 		}
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mRdsGroupMaskSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mRdsGroupMaskSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized long getRdsGroupMask() {
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "getRdsGroupMask: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "getRdsGroupMask: failed, fm not enabled  state " + mState);
 			return 0;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -1842,18 +1632,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mRdsGroupMaskSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getRdsGroupMask();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.getRdsGroupMask returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.getRdsGroupMask returned status " + status.toString());
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.getRdsGroupMask returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getRdsGroupMask returned status " + status.toString());
 				return 0;
 			}
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
 			try {
 				String syncString = mRdsGroupMaskSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -1864,19 +1652,15 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log
-					.d(TAG,
-							"StubFmRxService:getRdsGroupMask(): ---------- Exiting ");
-		return getRdsGroupMaskValue;
+		if (DBG) Log.d(TAG, "StubFmRxService:getRdsGroupMask(): ---------- Exiting");
 
+		return getRdsGroupMaskValue;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mSetRdsAfSwitchModeSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mSetRdsAfSwitchModeSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public boolean setRdsAfSwitchMode(int mode) {
 		if (mState != FmReceiver.STATE_ENABLED) {
@@ -1891,28 +1675,22 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			JFmRx.JFmRxRdsAfSwitchMode lMode = JFmUtils.getEnumConst(
 					JFmRx.JFmRxRdsAfSwitchMode.class, mode);
 			if (lMode == null) {
-				Log.e(TAG, "StubFmRxService:setRdsAfSwitchMode invalid  lMode "
-						+ lMode);
+				Log.e(TAG, "StubFmRxService:setRdsAfSwitchMode invalid  lMode " + lMode);
 				return false;
 			}
 			mSetRdsAfSwitchModeSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.setRdsAfSwitchMode(lMode);
 			if (DBG)
-				Log.d(TAG, "mJFmRx.setRdsAfSwitchMode returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.setRdsAfSwitchMode returned status " + status.toString());
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.setRdsAfSwitchMode returned status "
-						+ status.toString());
-
+				Log.e(TAG, "mJFmRx.setRdsAfSwitchMode returned status " + status.toString());
 				return false;
 			}
 			try {
-				Log
-						.i(TAG,
-								"StubFmRxService:setRdsAfSwitchMode(): -------- Waiting... ");
+				Log.i(TAG, "StubFmRxService:setRdsAfSwitchMode(): -------- Waiting... ");
 				String syncString = mSetRdsAfSwitchModeSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string received: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -1924,21 +1702,17 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			return false;
 		}
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
-	private BlockingQueue<String> mRdsAfSwitchModeSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mRdsAfSwitchModeSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getRdsAfSwitchMode() {
 
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "getRdsAfSwitchMode: failed, fm not enabled  state "
-					+ mState);
+			Log.e(TAG, "getRdsAfSwitchMode: failed, fm not enabled  state " + mState);
 			return 0;
 		}
 		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
@@ -1948,19 +1722,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mRdsAfSwitchModeSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getRdsAfSwitchMode();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.getRdsAfSwitchMode returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.getRdsAfSwitchMode returned status " + status);
 			if (status != JFmRxStatus.PENDING) {
-				Log.e(TAG, "mJFmRx.getRdsAfSwitchMode returned status "
-						+ status.toString());
-
+				Log.e(TAG, "mJFmRx.getRdsAfSwitchMode returned status " + status);
 				return 0;
 			}
 			/* OMAPS00207918:implementation to make the get/set API Synchronous */
 			try {
 				String syncString = mRdsAfSwitchModeSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -1972,18 +1743,14 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log
-					.d(TAG,
-							"StubFmRxService:getRdsAfSwitchMode(): ---------- Exiting... ");
-		return getRdsAfSwitchModeValue;
+		if (DBG) Log.d(TAG, "StubFmRxService:getRdsAfSwitchMode(): ---------- Exiting... ");
 
+		return getRdsAfSwitchModeValue;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public boolean changeAudioTarget(int mask, int digitalConfig) {
 
 		if (mState != FmReceiver.STATE_ENABLED) {
@@ -1998,19 +1765,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		JFmRx.JFmRxAudioTargetMask lMask = JFmUtils.getEnumConst(
 				JFmRx.JFmRxAudioTargetMask.class, mask);
 		if (lMask == null || lconfig == null) {
-			Log.e(TAG,
-					"StubFmRxService:changeAudioTarget invalid  lMask , lconfig"
-							+ lMask + "" + lconfig);
+			Log.e(TAG, "StubFmRxService:changeAudioTarget invalid lMask:" + lMask +
+			           ", lconfig:" + lconfig);
 			return false;
 		}
 
 		JFmRxStatus status = mJFmRx.changeAudioTarget(lMask, lconfig);
 		if (DBG)
-			Log.d(TAG, "mJFmRx.changeAudioTarget returned status "
-					+ status.toString());
+			Log.d(TAG, "mJFmRx.changeAudioTarget returned status " + status);
 		if (status != JFmRxStatus.PENDING) {
-			Log.e(TAG, "mJFmRx.changeAudioTarget returned status "
-					+ status.toString());
+			Log.e(TAG, "mJFmRx.changeAudioTarget returned status " + status);
 			return false;
 		}
 
@@ -2021,13 +1785,10 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public boolean changeDigitalTargetConfiguration(int digitalConfig) {
 
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG,
-					"changeDigitalTargetConfiguration: failed, already in state "
-							+ mState);
+			Log.e(TAG, "changeDigitalTargetConfiguration: failed, already in state " + mState);
 			return false;
 		}
 
@@ -2036,43 +1797,30 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		JFmRx.JFmRxEcalSampleFrequency lconfig = JFmUtils.getEnumConst(
 				JFmRx.JFmRxEcalSampleFrequency.class, digitalConfig);
 		if (lconfig == null) {
-			Log.e(TAG,
-					"StubFmRxService:changeDigitalTargetConfiguration invalid   lconfig"
-							+ lconfig);
+			Log.e(TAG, "StubFmRxService:changeDigitalTargetConfiguration invalid  lconfig:" + lconfig);
 			return false;
 		}
 
 		JFmRxStatus status = mJFmRx.changeDigitalTargetConfiguration(lconfig);
-		if (DBG)
-			Log.d(TAG,
-					"mJFmRx.changeDigitalTargetConfiguration returned status "
-							+ status.toString());
+		if (DBG) Log.d(TAG, "mJFmRx.changeDigitalTargetConfiguration returned status " + status);
 		if (status != JFmRxStatus.PENDING) {
-			Log.e(TAG,
-					"mJFmRx.changeDigitalTargetConfiguration returned status "
-							+ status.toString());
-
+			Log.e(TAG, "mJFmRx.changeDigitalTargetConfiguration returned status " + status);
 			return false;
 		}
 
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public boolean enableAudioRouting() {
 
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log
-					.e(TAG, "enableAudioRouting: failed, already in state "
-							+ mState);
+			Log.e(TAG, "enableAudioRouting: failed, already in state " + mState);
 			return false;
 		}
-		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
-				"Need FMRX_ADMIN_PERM permission");
+		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM, "Need FMRX_ADMIN_PERM permission");
 
 		/*
 		 * EnableAudioRouting is not supported in this release of the FM stack,
@@ -2081,39 +1829,28 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		// JFmRxStatus status = mJFmRx.enableAudioRouting();
 		JFmRxStatus status = JFmRxStatus.NOT_SUPPORTED;
 
-		if (DBG)
-			Log.d(TAG, "mJFmRx.enableAudioRouting returned status "
-					+ status.toString());
+		if (DBG) Log.d(TAG, "mJFmRx.enableAudioRouting returned status " + status.toString());
 		if (status == JFmRxStatus.NOT_SUPPORTED) {
-			Log
-					.e(TAG,
-							"mJFmRx.enableAudioRouting returned status true for backward compatibility ");
-
+			Log.e(TAG, "mJFmRx.enableAudioRouting returned status true for backward compatibility ");
 			return true;
 		}
 		if (status != JFmRxStatus.PENDING) {
-			Log.e(TAG, "mJFmRx.enableAudioRouting returned status "
-					+ status.toString());
-
+			Log.e(TAG, "mJFmRx.enableAudioRouting returned status " + status.toString());
 			return false;
 		}
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public boolean disableAudioRouting() {
 
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "disableAudioRouting: failed, already in state "
-					+ mState);
+			Log.e(TAG, "disableAudioRouting: failed, already in state " + mState);
 			return false;
 		}
-		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
-				"Need FMRX_ADMIN_PERM permission");
+		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM, "Need FMRX_ADMIN_PERM permission");
 		/*
 		 * DisableAudioRouting is not supported in this release of the FM stack,
 		 * VAC configurations are disabled
@@ -2121,29 +1858,22 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		// JFmRxStatus status = mJFmRx.disableAudioRouting();
 		JFmRxStatus status = JFmRxStatus.NOT_SUPPORTED;
 
-		if (DBG)
-			Log.d(TAG, "mJFmRx.disableAudioRouting returned status "
-					+ status.toString());
-		if (status == JFmRxStatus.NOT_SUPPORTED) {
-			Log
-					.e(TAG,
-							"mJFmRx.disableAudioRouting returned status true for backward compatibility ");
+		if (DBG) Log.d(TAG, "mJFmRx.disableAudioRouting returned status " + status.toString());
 
+		if (status == JFmRxStatus.NOT_SUPPORTED) {
+			Log.e(TAG, "mJFmRx.disableAudioRouting returned status true for backward compatibility ");
 			return true;
 		}		
 		if (status != JFmRxStatus.PENDING) {
-			Log.e(TAG, "mJFmRx.disableAudioRouting returned status "
-					+ status.toString());
+			Log.e(TAG, "mJFmRx.disableAudioRouting returned status " + status.toString());
 			return false;
 		}
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public boolean pauseFm() {
 		if (isEnabled() == true) {
 
@@ -2165,7 +1895,6 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			return true;
 		} else
 			return false;
-
 	}
 
 	/*************************************************************************************************
@@ -2182,50 +1911,39 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 
 		mStopCompleteScanSyncQueue.clear();
 
-		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
-				"Need FMRX_ADMIN_PERM permission");
+		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM, "Need FMRX_ADMIN_PERM permission");
 
 		JFmRxStatus status = mJFmRx.completeScan();
-		if (DBG)
-			Log.d(TAG, "mJFmRx.completeScan returned status "
-					+ status.toString());
+		if (DBG) Log.d(TAG, "mJFmRx.completeScan returned status " + status.toString());
 		if (JFmRxStatus.PENDING != status) {
-			Log.e(TAG, "mJFmRx.completeScan returned status "
-					+ status.toString());
+			Log.e(TAG, "mJFmRx.completeScan returned status " + status.toString());
 			return false;
 		}
 
 		mIsCompleteScanInProgress = true;
 
 		return true;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-
 	public int stopCompleteScan() {
 
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log.e(TAG, "stopCompleteScan: failed, fm not enabled state "
-					+ mState);
+			Log.e(TAG, "stopCompleteScan: failed, fm not enabled state " + mState);
 			return 0;
 		}
 
-		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
-				"Need FMRX_ADMIN_PERM permission");
+		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM, "Need FMRX_ADMIN_PERM permission");
 		if ((mIsSeekInProgress == false) && (mIsTuneInProgress == false)) {
 			Log.i(TAG, "stubFmRxService:stopCompleteScan started");
 			mStopCompleteScanSyncQueue.clear();
 
 			JFmRxStatus status = mJFmRx.stopCompleteScan();
-			if (DBG)
-				Log.d(TAG, "mJFmRx.stopCompleteScan returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.stopCompleteScan returned status " + status.toString());
 			if (JFmRxStatus.COMPLETE_SCAN_IS_NOT_IN_PROGRESS == status) {
-					if(DBG)
-						Log.d(TAG,"complete scan already stopped");	
+					if(DBG) Log.d(TAG,"complete scan already stopped");
 					return status.getValue();
 			} else if(JFmRxStatus.PENDING != status){
 				Log.e(TAG, "mJFmRx.stopCompleteScan returned status "
@@ -2234,12 +1952,11 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			}
 
 			try {
-				Log
-						.i(TAG,
-								"StubFmRxService:stopCompleteScan(): -------- Waiting... ");
+				Log.i(TAG, "StubFmRxService:stopCompleteScan(): -------- Waiting... ");
+
 				String syncString = mStopCompleteScanSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string received: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -2251,27 +1968,20 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek/tune is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
+		if (DBG) Log.d(TAG, "StubFmRxService:stopCompleteScan(): ---------- Exiting... ");
 
-			Log
-					.d(TAG,
-							"StubFmRxService:stopCompleteScan(): ---------- Exiting... ");
 		return mStopCompleteScanStatus;
-
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mValidChannelSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mValidChannelSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized boolean isValidChannel() {
 
 		if (mState != FmReceiver.STATE_ENABLED) {
-			Log
-					.e(TAG, "isValidChannel: failed, fm not enabled state "
-							+ mState);
+			Log.e(TAG, "isValidChannel: failed, fm not enabled state " + mState);
 			return false;
 		}
 
@@ -2282,11 +1992,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mValidChannelSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.isValidChannel();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.isValidChannel returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.isValidChannel returned status " + status);
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.isValidChannel returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.isValidChannel returned status " + status);
 				return false;
 			}
 
@@ -2294,7 +2002,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			try {
 				String syncString = mValidChannelSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return false;
 				}
 			} catch (InterruptedException e) {
@@ -2305,9 +2013,8 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return false;
 		}
-		if (DBG)
-			Log.d(TAG,
-					"StubFmRxService:isValidChannel(): ---------- Exiting... ");
+		if (DBG) Log.d(TAG, "StubFmRxService:isValidChannel(): ---------- Exiting... ");
+
 		return mIsValidChannel;
 
 	}
@@ -2315,30 +2022,26 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mFwVersionSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mFwVersionSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized double getFwVersion() {
 
-		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
-				"Need FMRX_ADMIN_PERM permission");
+		mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM, "Need FMRX_ADMIN_PERM permission");
 		if ((mIsSeekInProgress == false) && (mIsTuneInProgress == false)
 				&& (mIsCompleteScanInProgress == false)) {
 			mFwVersionSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getFwVersion();
 			if (DBG)
-				Log.d(TAG, "mJFmRx.getFwVersion returned status "
-						+ status.toString());
+				Log.d(TAG, "mJFmRx.getFwVersion returned status " + status.toString());
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.getFwVersion returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getFwVersion returned status " + status.toString());
 				return 0;
 			}
 
 			try {
 				String syncString = mFwVersionSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
@@ -2350,19 +2053,15 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log
-					.d(TAG,
-							"StubFmRxService:getFwVersion(): ---------- Exiting... ");
-		return getFwVersion;
+		if (DBG) Log.d(TAG, "StubFmRxService:getFwVersion(): ---------- Exiting... ");
 
+		return getFwVersion;
 	}
 
 	/*************************************************************************************************
 	 * Implementation of IFmReceiver IPC interface
 	 *************************************************************************************************/
-	private BlockingQueue<String> mCompleteScanProgressSyncQueue = new LinkedBlockingQueue<String>(
-			5);
+	private BlockingQueue<String> mCompleteScanProgressSyncQueue = new LinkedBlockingQueue<String>(5);
 
 	public synchronized int getCompleteScanProgress() {
 
@@ -2371,12 +2070,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		if ((mIsSeekInProgress == false) && (mIsTuneInProgress == false)) {
 			mCompleteScanProgressSyncQueue.clear();
 			JFmRxStatus status = mJFmRx.getCompleteScanProgress();
-			if (DBG)
-				Log.d(TAG, "mJFmRx.getCompleteScanProgress returned status "
-						+ status.toString());
+			if (DBG) Log.d(TAG, "mJFmRx.getCompleteScanProgress returned status " + status.toString());
 			if (JFmRxStatus.PENDING != status) {
-				Log.e(TAG, "mJFmRx.getCompleteScanProgress returned status "
-						+ status.toString());
+				Log.e(TAG, "mJFmRx.getCompleteScanProgress returned status " + status.toString());
 				if (JFmRxStatus.COMPLETE_SCAN_IS_NOT_IN_PROGRESS == status) {
 					return status.getValue();
 				} else
@@ -2385,23 +2081,19 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			try {
 				String syncString = mCompleteScanProgressSyncQueue.poll(BLOCKING_TIMEOUT_IN_SEC, TimeUnit.SECONDS);
 				if (null == syncString || !syncString.equals("*")) {
-					Log.e(TAG, "wrong sync string receieved: " + syncString);
+					Log.e(TAG, "wrong sync string received:" + syncString);
 					return 0;
 				}
 			} catch (InterruptedException e) {
-				Log
-						.e(TAG,
-								"mJFmRx.getCompleteScanProgress-- Wait() s Exception!!!");
+				Log.e(TAG, "mJFmRx.getCompleteScanProgress-- Wait() s Exception!!!");
 				return 0;
 			}
 		} else {
 			Log.e(TAG, "Seek is in progress.cannot call the API");
 			return FM_SEEK_IN_PROGRESS;
 		}
-		if (DBG)
-			Log
-					.d(TAG,
-							"StubFmRxService:getCompleteScanProgress(): ---------- Exiting... ");
+		if (DBG) Log.d(TAG, "StubFmRxService:getCompleteScanProgress(): ---------- Exiting... ");
+
 		return getScanProgress;
 
 	}
@@ -2410,19 +2102,13 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	 * JFmRxlback interface for receiving its events and for broadcasting them
 	 * as intents
 	 *************************************************************************************************/
-
 	public void fmRxRawRDS(JFmRxStatus status,
 			JFmRx.JFmRxRdsGroupTypeMask bitInMaskValue, byte[] groupData)
-
 	{
-
 		if (DBG) {
-			Log.d(TAG, "StubFmRxService:fmRxRawRDS status = "
-					+ status.toString());
-			Log.d(TAG, "StubFmRxService:fmRxRawRDS bitInMaskValue = "
-					+ bitInMaskValue.getValue());
+			Log.d(TAG, "StubFmRxService:fmRxRawRDS status = " + status.toString());
+			Log.d(TAG, "StubFmRxService:fmRxRawRDS bitInMaskValue = " + bitInMaskValue.getValue());
 		}
-
 	}
 
 	public void fmRxRadioText(JFmRxStatus status, boolean resetDisplay,
@@ -2430,13 +2116,10 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			JFmRx.JFmRxRepertoire repertoire) {
 
 		if (DBG) {
-			Log.d(TAG,
-					"StubFmRxService:fmRxRadioText status = , msg1 =  ,len =  , startIndex  = "
+			Log.d(TAG, "StubFmRxService:fmRxRadioText status = , msg1 =  ,len =  , startIndex  = "
 							+ status.toString() + " " + /* + msg1 + " " */" "
 							+ len + " " + startIndex);
-			Log
-					.d(TAG,
-							"StubFmRxService:sending intent RDS_TEXT_CHANGED_ACTION");
+			Log.d(TAG, "StubFmRxService:sending intent RDS_TEXT_CHANGED_ACTION");
 		}
 
 		Intent intentRds = new Intent(FmReceiverIntent.RDS_TEXT_CHANGED_ACTION);
@@ -2554,22 +2237,17 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		mMode = mode;
 		switch (mMode) {
 		case FM_RX_MONO:
-			if (DBG)
-				Log.d(TAG, "Mono Mode");
+			if (DBG) Log.d(TAG, "Mono Mode");
 			break;
 		case FM_RX_STEREO:
-			if (DBG)
-				Log.d(TAG, "Stereo Mode");
+			if (DBG) Log.d(TAG, "Stereo Mode");
 			break;
 		default:
-			if (DBG)
-				Log.d(TAG, "Illegal stereo mode received from stack: " + mode);
+			if (DBG) Log.d(TAG, "Illegal stereo mode received from stack:" + mode);
 			break;
 		}
-		if (DBG)
-			Log
-					.d(TAG,
-							"StubFmRxService:sending intent DISPLAY_MODE_MONO_STEREO_ACTION");
+		if (DBG) Log.d(TAG, "StubFmRxService:sending intent DISPLAY_MODE_MONO_STEREO_ACTION");
+
 		Intent intentMode = new Intent(
 				FmReceiverIntent.DISPLAY_MODE_MONO_STEREO_ACTION);
 		intentMode.putExtra(FmReceiverIntent.MODE_MONO_STEREO, mode.getValue());
@@ -2640,8 +2318,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 
 	}
 
-	public void fmRxCompleteScanDone(JFmRxStatus status, int numOfChannels,
-			int[] channelsData) {
+	public void fmRxCompleteScanDone(JFmRxStatus status, int numOfChannels, int[] channelsData) {
 
 		mIsCompleteScanInProgress = false;
 
@@ -2652,9 +2329,8 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.d(TAG, "StubFmRxService:fmRxCompleteScanDone numOfChannels = "
 					+ numOfChannels);
 			for (int i = 0; i < numOfChannels; i++)
-				Log.d(TAG,
-						"StubFmRxService:fmRxCompleteScanDone channelsData = "
-								+ i + "  " + +channelsData[i]);
+				Log.d(TAG, "StubFmRxService:fmRxCompleteScanDone channelsData = "
+						+ i + "  " + +channelsData[i]);
 		}
 
 		Intent intentscan = new Intent(
@@ -2671,13 +2347,11 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			Log.e(TAG, "InterruptedException on queue wakeup!");
 		}
 		;
-
 	}
 
 	public void fmRxCmdError(JFmRxStatus status) {
 
-		if (DBG)
-			Log.d(TAG, "Sending intent FM_ERROR_ACTION");
+		if (DBG) Log.d(TAG, "Sending intent FM_ERROR_ACTION");
 		/*
 		 * Intent intentError = new Intent(FmReceiverIntent.FM_ERROR_ACTION);
 		 * mContext.sendBroadcast(intentError);
@@ -2688,29 +2362,26 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	public void fmRxCmdDone(JFmRxStatus status, int command, long value) {
 
 		if (DBG) {
-			Log.d(TAG, "  fmRxCmdDone	 done (command )" + command);
-			Log.d(TAG, "  fmRxCmdDone	 done (status: , value: )" + status + ""
-					+ value);
+			Log.d(TAG, "  fmRxCmdDone done (command:" + command
+					+ ", status:" + status + ", value:" + value + ")");
 		}
 
 		switch (command) {
 		case JFmRxCommand.CMD_ENABLE:
-			if (DBG)
-				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_ENABLE");
+			if (DBG) Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_ENABLE");
 
 			mState = FmReceiver.STATE_ENABLED;
 
-			if (DBG)
-				Log.d(TAG, "Sending restore values intent");
+			if (DBG) Log.d(TAG, "Sending restore values intent");
 			Intent restoreValuesIntent = new Intent(FM_RESTORE_VALUES);
 			mContext.sendBroadcast(restoreValuesIntent);
-
 			break;
 
 		case JFmRxCommand.CMD_DISABLE:
 			if (DBG) {
 				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_DISABLE");
-				Log.d(TAG, "  fmRxCmdDisable ( command: , status: , value: )" + command + "" + status + "" + value);
+				Log.d(TAG, "  fmRxCmdDisable (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			mState = FmReceiver.STATE_DISABLED;
@@ -2724,11 +2395,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 
 		case JFmRxCommand.CMD_SET_BAND:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_BAND");
-				Log.d(TAG, "  fmRxCmdSetBand ( command: , status: , value: )"
-						+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_BAND");
+				Log.d(TAG, "  fmRxCmdSetBand (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 				Log.d(TAG, "StubFmRxService:sending intent BAND_CHANGE_ACTION");
 			}
 
@@ -2738,16 +2407,13 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_GET_BAND:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_BAND");
-				Log.d(TAG, "  fmRxCmdGetBand ( command: , status: , value: )"
-						+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_BAND");
+				Log.d(TAG, "  fmRxCmdGetBand (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			getBandValue = (int) value;
@@ -2758,30 +2424,23 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG, "  fmRxCmdGetBand ( getBandValue: )" + getBandValue);
+			if (DBG) Log.d(TAG, "  fmRxCmdGetBand (getBandValue:" + getBandValue + ")");
+
 			break;
 
 		case JFmRxCommand.CMD_SET_MONO_STEREO_MODE:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_MONO_STEREO_MODE");
-				Log.d(TAG,
-						"  fmRxCmdSetMonoStereoMode ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_MONO_STEREO_MODE");
+				Log.d(TAG, "  fmRxCmdSetMonoStereoMode (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			break;
 
 		case JFmRxCommand.CMD_GET_MONO_STEREO_MODE:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_MONO_STEREO_MODE");
-				Log.d(TAG,
-						"  fmRxCmdGetMonoStereoMode ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_MONO_STEREO_MODE");
+				Log.d(TAG, "  fmRxCmdGetMonoStereoMode (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			getMonoStereoModeValue = (int) value;
 
@@ -2791,23 +2450,15 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG,
-						"  fmRxCmdGetMonoStereoMode ( getMonoStereoModeValue: )"
-								+ getMonoStereoModeValue);
-
+			if (DBG) Log.d(TAG, "  fmRxCmdGetMonoStereoMode (getMonoStereoModeValue:"
+								+ getMonoStereoModeValue + ")");
 			break;
 
 		case JFmRxCommand.CMD_SET_MUTE_MODE:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_MUTE_MODE");
-
-				Log.d(TAG,
-						"  fmRxCmdSetMuteMode ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_MUTE_MODE");
+				Log.d(TAG, "  fmRxCmdSetMuteMode (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			/* OMAPS00207918:implementation to make the set API Synchronous */
@@ -2816,17 +2467,13 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_GET_MUTE_MODE:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_MUTE_MODE");
-				Log.d(TAG,
-						"  fmRxCmdGetMuteMode ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_MUTE_MODE");
+				Log.d(TAG, "  fmRxCmdGetMuteMode (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			getMuteModeValue = (int) value;
 
@@ -2836,21 +2483,17 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			if (DBG)
-				Log.d(TAG, "  fmRxCmdGetMuteMode ( getMuteModeValue: )"
-						+ getMuteModeValue);
+				Log.d(TAG, "  fmRxCmdGetMuteMode (getMuteModeValue:"
+						+ getMuteModeValue + ")");
 
 			break;
 
 		case JFmRxCommand.CMD_SET_RF_DEPENDENT_MUTE_MODE:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_RF_DEPENDENT_MUTE_MODE");
-				Log.d(TAG,
-						"  fmRxCmdSetRfDependentMuteMode ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_RF_DEPENDENT_MUTE_MODE");
+				Log.d(TAG, "  fmRxCmdSetRfDependentMuteMode (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			/* OMAPS00207918:implementation to make the set API Synchronous */
@@ -2859,18 +2502,13 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_GET_RF_DEPENDENT_MUTE_MODE:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RF_DEPENDENT_MUTE_MODE");
-
-				Log.d(TAG,
-						"  fmRxCmdGetRfDependentMuteMode ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RF_DEPENDENT_MUTE_MODE");
+				Log.d(TAG, "  fmRxCmdGetRfDependentMuteMode (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			getRfDependentMuteModeValue = (int) value;
@@ -2881,22 +2519,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG,
-						"  fmRxCmdGetRfDependentMuteMode ( getRfDependentMuteModeValue: )"
-								+ getRfDependentMuteModeValue);
+			if (DBG) Log.d(TAG, "  fmRxCmdGetRfDependentMuteMode (getRfDependentMuteModeValue:"
+						+ getRfDependentMuteModeValue + ")");
 
 			break;
 
 		case JFmRxCommand.CMD_SET_RSSI_THRESHOLD:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_RSSI_THRESHOLD");
-				Log.d(TAG,
-						"  fmRxCmdSetRssiThreshhold ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_RSSI_THRESHOLD");
+				Log.d(TAG, "  fmRxCmdSetRssiThreshhold (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			/* OMAPS00207918:implementation to make the get API Synchronous */
@@ -2905,17 +2537,13 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_GET_RSSI_THRESHOLD:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RSSI_THRESHOLD");
-				Log.d(TAG,
-						"fmRxCmdGetRssiThreshhold ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RSSI_THRESHOLD");
+				Log.d(TAG, "fmRxCmdGetRssiThreshhold (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			getRssiThresholdValue = (int) value;
@@ -2926,22 +2554,17 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			if (DBG)
-				Log.d(TAG,
-						"  fmRxCmdGetRssiThreshhold ( getRssiThresholdValue: )"
-								+ getRssiThresholdValue);
+				Log.d(TAG, "  fmRxCmdGetRssiThreshhold (getRssiThresholdValue:"
+								+ getRssiThresholdValue + ")");
 
 			break;
 
 		case JFmRxCommand.CMD_SET_DEEMPHASIS_FILTER:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_DEEMPHASIS_FILTER");
-				Log.d(TAG,
-						"  fmRxCmdSetDeemphasisFilter ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_DEEMPHASIS_FILTER");
+				Log.d(TAG, "  fmRxCmdSetDeemphasisFilter (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			/* OMAPS00207918:implementation to make the get API Synchronous */
 			try {
@@ -2949,17 +2572,13 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_GET_DEEMPHASIS_FILTER:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_DEEMPHASIS_FILTER");
-				Log.d(TAG,
-						"  fmRxCmdGetDeemphasisFilter ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_DEEMPHASIS_FILTER");
+				Log.d(TAG, "  fmRxCmdGetDeemphasisFilter (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			getDeEmphasisFilterValue = (int) value;
@@ -2970,12 +2589,8 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG,
-						"  fmRxCmdGetDeemphasisFilter ( getDeEmphasisFilterValue: )"
-								+ getDeEmphasisFilterValue);
-
+			if (DBG) Log.d(TAG, "  fmRxCmdGetDeemphasisFilter (getDeEmphasisFilterValue:"
+								+ getDeEmphasisFilterValue + ")");
 			break;
 
 		case JFmRxCommand.CMD_SET_VOLUME:
@@ -2988,41 +2603,32 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 				mVolState = VOL_REQ_STATE_IDLE;
 			}
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_VOLUME");
-				Log.d(TAG, "  fmRxCmdSetVolume ( command: , status: , value: )"
-						+ command + "" + status + "" + value);
-				Log.d(TAG,
-						"StubFmRxService:sending intent VOLUME_CHANGED_ACTION");
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_VOLUME");
+				Log.d(TAG, "  fmRxCmdSetVolume (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
+				Log.d(TAG, "StubFmRxService:sending intent VOLUME_CHANGED_ACTION");
 			}
-
 			break;
 
 		case JFmRxCommand.CMD_SET_CHANNEL_SPACING:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_CHANNEL_SPACING");
-				Log.d(TAG,
-						"  fmRxCmdSetChannelSpacing ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_CHANNEL_SPACING");
+				Log.d(TAG, "  fmRxCmdSetChannelSpacing (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
+
 			}
 			try {
 				mSetChannelSpacingSyncQueue.put("*");
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_GET_VOLUME:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_VOLUME");
-				Log.d(TAG, "  fmRxCmdGetVolume ( command: , status: , value: )"
-						+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_VOLUME");
+				Log.d(TAG, "  fmRxCmdGetVolume (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 				getVolumeValue = (int) value;
 			}
 
@@ -3032,21 +2638,15 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG, "  fmRxCmdGetVolume ( getVolumeValue: )"
-						+ getVolumeValue);
+			if (DBG) Log.d(TAG, "  fmRxCmdGetVolume (getVolumeValue:"+ + getVolumeValue + ")");
 
 			break;
 
 		case JFmRxCommand.CMD_GET_CHANNEL_SPACING:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_CHANNEL_SPACING");
-				Log.d(TAG,
-						"  fmRxCmdGetChannelSpacing ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_CHANNEL_SPACING");
+				Log.d(TAG, "  fmRxCmdGetChannelSpacing (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			getChannelSpaceValue = (int) value;
 			/* OMAPS00207918:implementation to make the get API Synchronous */
@@ -3055,23 +2655,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG,
-						"  fmRxCmdGetChannelSpacing ( getChannelSpaceValue: )"
-								+ getChannelSpaceValue);
-
+			if (DBG) Log.d(TAG, "  fmRxCmdGetChannelSpacing (getChannelSpaceValue:"
+								+ getChannelSpaceValue + ")");
 			break;
 
 		case JFmRxCommand.CMD_TUNE:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_TUNE");
-				Log.d(TAG, "  fmRxCmdTune ( command: , status: , value: )"
-						+ command + "" + status + "" + value);
-				Log.d(TAG,
-						"StubFmRxService:sending intent TUNE_COMPLETE_ACTION");
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_TUNE");
+				Log.d(TAG, "  fmRxCmdTune (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
+				Log.d(TAG, "StubFmRxService:sending intent TUNE_COMPLETE_ACTION");
 			}
 			mIsTuneInProgress = false;
 			mCurrentFrequency = (int) value;
@@ -3084,12 +2677,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 
 		case JFmRxCommand.CMD_GET_TUNED_FREQUENCY:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_TUNED_FREQUENCY");
-				Log.d(TAG,
-						"  fmRxCmdGetTunedFrequency ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_TUNED_FREQUENCY");
+				Log.d(TAG, "  fmRxCmdGetTunedFrequency (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			getTunedFrequencyValue = (int) value;
 
@@ -3099,65 +2689,51 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG,
-						"  fmRxCmdGetTunedFrequency ( getTunedFrequencyValue: )"
-								+ getTunedFrequencyValue);
+			if (DBG) Log.d(TAG, "  fmRxCmdGetTunedFrequency (getTunedFrequencyValue:"
+						+ getTunedFrequencyValue + ")");
 
 			break;
 
 		case JFmRxCommand.CMD_SEEK:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SEEK");
-				Log.d(TAG, "  fmRxCmdSeek ( command: , status: , value: )"
-						+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SEEK");
+				Log.d(TAG, "  fmRxCmdSeek (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			mIsSeekInProgress = false;
 			mCurrentFrequency = (int) value;
-			if (DBG)
-				Log.d(TAG, "StubFmRxService:sending intent SEEK_ACTION");
+			if (DBG) Log.d(TAG, "StubFmRxService:sending intent SEEK_ACTION");
 			
 			Intent intentstart = new Intent(FmReceiverIntent.SEEK_ACTION);
-			intentstart.putExtra(FmReceiverIntent.SEEK_FREQUENCY,
-					mCurrentFrequency);
+			intentstart.putExtra(FmReceiverIntent.SEEK_FREQUENCY, mCurrentFrequency);
 			intentstart.putExtra(FmReceiverIntent.STATUS, status.getValue());
 			mContext.sendBroadcast(intentstart, FMRX_PERM);
-
 			break;
 
 		case JFmRxCommand.CMD_STOP_SEEK:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_STOP_SEEK");
-				Log.d(TAG, "  fmRxCmdStopSeek ( command: , status: , value: )"
-						+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_STOP_SEEK");
+				Log.d(TAG, "  fmRxCmdStopSeek (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			try {
 				mStopSeekSyncQueue.put("*");
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_GET_RSSI:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RSSI");
-				Log.d(TAG, "  fmRxCmdGetRssi ( command: , status: , value: )"
-						+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RSSI");
+				Log.d(TAG, "  fmRxCmdGetRssi (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			/*
 			 * FW is sending int8 which is read as uint16 in the stack, so we
 			 * are converting it back to int.RSSI range is -127 to 128
 			 */
-                     
 			getRssiValue = convertUnsignedToSignedInt(value);
 
 			/* OMAPS00207918:implementation to make the get API Synchronous */
@@ -3166,18 +2742,15 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG, "  fmRxCmdGetRssi ( getRssiValue: )" + getRssiValue);
+			if (DBG) Log.d(TAG, "  fmRxCmdGetRssi (getRssiValue:" + getRssiValue + ")");
+
 			break;
 
 		case JFmRxCommand.CMD_ENABLE_RDS:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_ENABLE_RDS");
-				Log.d(TAG, "  fmRxCmdEnableRds ( command: , status: , value: )"
-						+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_ENABLE_RDS");
+				Log.d(TAG, "  fmRxCmdEnableRds (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			/* OMAPS00207918:implementation to make the get API Synchronous */
 			try {
@@ -3185,17 +2758,13 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_DISABLE_RDS:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_DISABLE_RDS");
-				Log.d(TAG,
-						"  fmRxCmdDisableRds ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_DISABLE_RDS");
+				Log.d(TAG, "  fmRxCmdDisableRds (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			/* OMAPS00207918:implementation to make the get API Synchronous */
@@ -3204,34 +2773,26 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_SET_RDS_SYSTEM:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_RDS_SYSTEM");
-				Log.d(TAG,
-						"  fmRxCmdSetRdsSystem ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_RDS_SYSTEM");
+				Log.d(TAG, "  fmRxCmdSetRdsSystem (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			try {
 				mSetRdsSystemSyncQueue.put("*");
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_GET_RDS_SYSTEM:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RDS_SYSTEM");
-				Log.d(TAG,
-						"  fmRxCmdGetRdsSystem ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RDS_SYSTEM");
+				Log.d(TAG, "  fmRxCmdGetRdsSystem (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			getRdsSystemValue = (int) value;
@@ -3242,38 +2803,28 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG, "  fmRxCmdGetRdsSystem ( getRdsSystemValue: )"
-						+ getRdsSystemValue);
-
+			if (DBG) Log.d(TAG, "  fmRxCmdGetRdsSystem (getRdsSystemValue:"
+						+ getRdsSystemValue + ")");
 			break;
 
 		case JFmRxCommand.CMD_SET_RDS_GROUP_MASK:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_RDS_GROUP_MASK");
-				Log.d(TAG,
-						"  fmRxCmdSetRdsGroupMask ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_RDS_GROUP_MASK");
+				Log.d(TAG, "  fmRxCmdSetRdsGroupMask (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			try {
 				mSetRdsGroupMaskSyncQueue.put("*");
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_GET_RDS_GROUP_MASK:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RDS_GROUP_MASK");
-				Log.d(TAG,
-						"  fmRxCmdGetRdsGroupMask ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RDS_GROUP_MASK");
+				Log.d(TAG, "  fmRxCmdGetRdsGroupMask (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			getRdsGroupMaskValue = value;
@@ -3284,38 +2835,27 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG, "  fmRxCmdGetRdsGroupMask ( getRdsGroupMaskValue: )"
-						+ getRdsGroupMaskValue);
-
+			if (DBG) Log.d(TAG, "  fmRxCmdGetRdsGroupMask (getRdsGroupMaskValue:" + getRdsGroupMaskValue + ")");
 			break;
 
 		case JFmRxCommand.CMD_SET_RDS_AF_SWITCH_MODE:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_RDS_AF_SWITCH_MODE");
-				Log.d(TAG,
-						"  fmRxCmdSetRdsAfSwitchMode ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_SET_RDS_AF_SWITCH_MODE");
+				Log.d(TAG, "  fmRxCmdSetRdsAfSwitchMode (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			try {
 				mSetRdsAfSwitchModeSyncQueue.put("*");
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			break;
 
 		case JFmRxCommand.CMD_GET_RDS_AF_SWITCH_MODE:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RDS_AF_SWITCH_MODE");
-				Log.d(TAG,
-						"  fmRxCmdGetRdsAfSwitchMode ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_GET_RDS_AF_SWITCH_MODE");
+				Log.d(TAG, "  fmRxCmdGetRdsAfSwitchMode (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			getRdsAfSwitchModeValue = (int) value;
 
@@ -3325,71 +2865,47 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG,
-						"  fmRxCmdGetRdsAfSwitchMode ( getRdsAfSwitchModeValue: )"
-								+ getRdsAfSwitchModeValue);
-
+			if (DBG) Log.d(TAG, "  fmRxCmdGetRdsAfSwitchMode (getRdsAfSwitchModeValue:"
+						+ getRdsAfSwitchModeValue + ")");
 			break;
 
 		case JFmRxCommand.CMD_ENABLE_AUDIO:
-			if (DBG)
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_ENABLE_AUDIO");
-
+			if (DBG) Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_ENABLE_AUDIO");
 			break;
 
 		case JFmRxCommand.CMD_DISABLE_AUDIO:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_DISABLE_AUDIO");
-				Log.d(TAG,
-						"  fmRxCmdDisableAudio ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_DISABLE_AUDIO");
+				Log.d(TAG, "  fmRxCmdDisableAudio (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
-
 			break;
 
 		case JFmRxCommand.CMD_DESTROY:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_DESTROY");
-				Log.d(TAG, "  fmRxCmdDestroy ( command: , status: , value: )"
-						+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_DESTROY");
+				Log.d(TAG, "  fmRxCmdDestroy (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
-
 			break;
 
 		case JFmRxCommand.CMD_CHANGE_AUDIO_TARGET:
-			if (DBG)
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_CHANGE_AUDIO_TARGET");
-
+			if (DBG) Log.d(TAG, "StubFmRxService:fmRxCmdDone  JFmRxCommand.CMD_CHANGE_AUDIO_TARGET");
 			break;
 
 		case JFmRxCommand.CMD_CHANGE_DIGITAL_AUDIO_CONFIGURATION:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  CMD_CHANGE_DIGITAL_AUDIO_CONFIGURATION");
-				Log.d(TAG,
-						"  fmRxCmdChangeDigitalAudioConfiguration ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  CMD_CHANGE_DIGITAL_AUDIO_CONFIGURATION");
+				Log.d(TAG, "  fmRxCmdChangeDigitalAudioConfiguration (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
-
 			break;
 
 		case JFmRxCommand.CMD_GET_FW_VERSION:
 			if (DBG) {
 				Log.d(TAG, "StubFmRxService:fmRxCmdDone  CMD_GET_FW_VERSION");
-				Log.d(TAG,
-						"  fmRxCmdGetFwVersion ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "  fmRxCmdGetFwVersion (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			getFwVersion = ((double) value / 1000);
@@ -3400,23 +2916,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG, "  fmRxCmdGetFwVersion ( getFwVersion: )"
-						+ getFwVersion);
-
+			if (DBG) Log.d(TAG, "  fmRxCmdGetFwVersion (getFwVersion:"
+						+ getFwVersion + ")");
 			break;
 
 		case JFmRxCommand.CMD_COMPLETE_SCAN_PROGRESS:
 			if (DBG) {
-				Log
-						.d(TAG,
-								"StubFmRxService:fmRxCmdDone  CMD_COMPLETE_SCAN_PROGRESS");
-				Log.d(TAG,
-						"  fmRxCmdGetCompleteScanProgress ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  CMD_COMPLETE_SCAN_PROGRESS");
+				Log.d(TAG, "  fmRxCmdGetCompleteScanProgress (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
-
 			getScanProgress = (int) value;
 
 			/* OMAPS00207918:implementation to make the get API Synchronous */
@@ -3425,22 +2934,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-
-			if (DBG)
-				Log.d(TAG,
-						"  fmRxCmdGetCompleteScanProgress ( getScanProgress: )"
-								+ getScanProgress);
+			if (DBG) Log.d(TAG, "  fmRxCmdGetCompleteScanProgress (getScanProgress:"
+						+ getScanProgress + ")");
 
 			break;
 
 		case JFmRxCommand.CMD_STOP_COMPLETE_SCAN:
 			if (DBG) {
-				Log.d(TAG,
-						"StubFmRxService:fmRxCmdDone  CMD_STOP_COMPLETE_SCAN");
-				Log.d(TAG,
-						"  fmRxCmdStopCompleteScan ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "StubFmRxService:fmRxCmdDone  CMD_STOP_COMPLETE_SCAN");
+				Log.d(TAG, "  fmRxCmdStopCompleteScan (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 
 			mIsCompleteScanInProgress = false;
@@ -3451,19 +2954,16 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
 			if (DBG)
-				Log.d(TAG,
-						"  fmRxCmdStopCompleteScan ( mStopCompleteScanStatus: )"
-								+ mStopCompleteScanStatus);
+				Log.d(TAG, "  fmRxCmdStopCompleteScan (mStopCompleteScanStatus:"
+						+ mStopCompleteScanStatus + ")");
 			break;
 
 		case JFmRxCommand.CMD_IS_CHANNEL_VALID:
 			if (DBG) {
 				Log.d(TAG, "StubFmRxService:fmRxCmdDone  CMD_IS_CHANNEL_VALID");
-				Log.d(TAG,
-						"  fmRxCmdIsValidChannel- ( command: , status: , value: )"
-								+ command + "" + status + "" + value);
+				Log.d(TAG, "  fmRxCmdIsValidChannel (command:" + command
+						+ ", status:" + status + ", value:" + value + ")");
 			}
 			if (value > 0)
 				mIsValidChannel = true;
@@ -3476,19 +2976,14 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} catch (InterruptedException e) {
 				Log.e(TAG, "InterruptedException on queue wakeup!");
 			}
-			;
-			if (DBG)
-				Log.d(TAG, "  fmRxCmdIsValidChannel ( isValidChannel: )"
-						+ mIsValidChannel);
-
+			if (DBG) Log.d(TAG,
+				"  fmRxCmdIsValidChannel (isValidChannel:" + mIsValidChannel + ")");
 			break;
 
 		default:
-			Log.e(TAG, "Received completion event of unknown FM RX command: "
-					+ command);
+			Log.e(TAG, "Received completion event of unknown FM RX command:" + command);
 			break;
 		}
-
 	}
 
 	// Receiver of the Master Volume Control Intent Broadcasted by AudioService
@@ -3500,8 +2995,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			boolean setVolume = false;
 			int volType = intent.getIntExtra(AudioManager.EXTRA_VOLUME_STREAM_TYPE, AudioManager.STREAM_MUSIC);
 
-			if (DBG)
-				Log.d(TAG, " mFmRxIntentReceiver--->fmRxAction" + fmRxAction);
+			if (DBG) Log.d(TAG, " mFmRxIntentReceiver--->fmRxAction" + fmRxAction);
 
 			/*
 			 * Intent received when the volume has been changed from the master
@@ -3509,36 +3003,29 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			 * the volume.
 			 */
 			if (fmRxAction.equals(AudioManager.VOLUME_CHANGED_ACTION)) {
-				if (DBG)
-					Log.d(TAG, " AUDIOMANGER_VOLUME_CHANGED_ACTION    ");
+				if (DBG) Log.d(TAG, " AUDIOMANGER_VOLUME_CHANGED_ACTION");
 
 				if (mState == FmReceiver.STATE_ENABLED &&
 				    volType == AudioManager.STREAM_MUSIC) {
-					if (DBG)
-						Log.d(TAG, "will really change volume");
+					if (DBG) Log.d(TAG, "will really change volume");
 
 					setVolume = true;
 				} // mState & volType
 
 				else {
-					if (DBG)
-						Log
-								.d(TAG,
-										"VOLUME_CHANGED_ACTION Intent is Ignored, as FM is not yet Enabled");
+					if (DBG) Log.d(TAG,
+						"VOLUME_CHANGED_ACTION Intent is Ignored, as FM is not yet Enabled");
 
 				}
 			} // volume _change
 
 			if (fmRxAction.equals(FM_RESTORE_VALUES)) {
-				if (DBG)
-					Log.d(TAG, "FM_RESTORE_VALUES intent received");
+				if (DBG) Log.d(TAG, "FM_RESTORE_VALUES intent received");
 
 				setVolume = true;
 
-				if (DBG)
-					Log.d(TAG, "sending intent FM_ENABLED_ACTION");
-				Intent intentEnable = new Intent(
-							FmReceiverIntent.FM_ENABLED_ACTION);
+				if (DBG) Log.d(TAG, "sending intent FM_ENABLED_ACTION");
+				Intent intentEnable = new Intent(FmReceiverIntent.FM_ENABLED_ACTION);
 				mContext.sendBroadcast(intentEnable, FMRX_PERM);
 
 				/*
@@ -3566,9 +3053,8 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 
 					mVolume = (mVolume * FM_MAX_VOLUME)
 							/ (mAudioManager
-									.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
-					if (DBG)
-						Log.d(TAG, " mVolume  " + mVolume);
+								.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+					if (DBG) Log.d(TAG, " mVolume  " + mVolume);
 					
 					if (!setVolume(mVolume)) {
 						Log.e(TAG, "Not able, to set volume ");
@@ -3634,7 +3120,6 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 
 		String convertedString = sb.toString();
 		return convertedString;
-
 	}
 
 }

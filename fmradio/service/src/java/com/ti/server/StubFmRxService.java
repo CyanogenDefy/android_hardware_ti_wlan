@@ -84,7 +84,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	private static final String FM_RADIO_ACTIVE_KEY = "FM_launch";
 	private static final String FM_RADIO_VALUE_ON = "on";
 	private static final String FM_RADIO_VALUE_OFF = "off";
-
+	private static final String FM_RADIO_ROUTING_KEY = "FM_routing";
 	private static final String FM_ENABLED = "fm_enabled";
 	private static final String FM_RESTORE_VALUES = "com.ti.server.fmrestorecmd";
 
@@ -377,7 +377,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 		}
 
 		mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=off");
-
+		mAudioManager.setParameters(FM_RADIO_ROUTING_KEY + "=DEVICE_OUT_WIRED_HEADPHONE");
 		if (mWakeLock != null) {
 			mWakeLock.acquire();
 		}
@@ -675,6 +675,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			} else {
 
 				mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=on");
+				mAudioManager.setParameters(FM_RADIO_ROUTING_KEY + "=DEVICE_OUT_WIRED_HEADPHONE");
 			}
 			/*
 			 * (When muting turn off audio paths to lower power consumption and
@@ -3034,6 +3035,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 				 * routing happens appropriately
 				 */
 				mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=on");
+				mAudioManager.setParameters(FM_RADIO_ROUTING_KEY + "=DEVICE_OUT_WIRED_HEADPHONE");
 			}
 
 			if (setVolume) {

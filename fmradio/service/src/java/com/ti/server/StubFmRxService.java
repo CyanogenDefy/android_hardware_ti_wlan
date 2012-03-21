@@ -81,8 +81,9 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 	public static final String FM_RX_SERVICE = "StubFmRxService";
 
 //	private static final String FM_RADIO_ACTIVE_KEY = "fm_radio_active";
-//	private static final String FM_RADIO_VALUE_ON = "on";
-//	private static final String FM_RADIO_VALUE_OFF = "off";
+	private static final String FM_RADIO_ACTIVE_KEY = "FM_launch";
+	private static final String FM_RADIO_VALUE_ON = "on";
+	private static final String FM_RADIO_VALUE_OFF = "off";
 
 	private static final String FM_ENABLED = "fm_enabled";
 	private static final String FM_RESTORE_VALUES = "com.ti.server.fmrestorecmd";
@@ -375,7 +376,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			return false;
 		}
 
-//		mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=off");
+		mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=off");
 
 		if (mWakeLock != null) {
 			mWakeLock.acquire();
@@ -670,10 +671,10 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			 */
 			if (lMode == JFmRx.JFmRxMuteMode.FMC_MUTE) {
 
-//				mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=off");
+				mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=off");
 			} else {
 
-//				mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=on");
+				mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=on");
 			}
 			/*
 			 * (When muting turn off audio paths to lower power consumption and
@@ -1884,7 +1885,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 			mContext.enforceCallingOrSelfPermission(FMRX_ADMIN_PERM,
 					"Need FMRX_ADMIN_PERM permission");
 
-//			mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=off");
+			mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=off");
 
 			if (mWakeLock != null) {
 				mWakeLock.acquire();
@@ -3032,7 +3033,7 @@ public class StubFmRxService extends IFmReceiver.Stub implements
 				 * Tell the Audio Hardware interface that FM is enabled, so that
 				 * routing happens appropriately
 				 */
-//				mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=on");
+				mAudioManager.setParameters(FM_RADIO_ACTIVE_KEY + "=on");
 			}
 
 			if (setVolume) {

@@ -3,17 +3,17 @@
  *
  * Copyright 2001-2010 Texas Instruments, Inc. - http://www.ti.com/
  * Copyright 2010 Sony Ericsson Mobile Communications AB.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and  
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 /*
@@ -147,7 +147,7 @@ static int nativeJFmRx_Create(JNIEnv *env,jobject obj,jobject jContextValue)
 	FM_LOGD("%s: Entered", __func__);
 
 
-	property_get("ro.semc.fm_stack.debug", prop, "0");
+	property_get("ro.ti.fm_stack.debug", prop, "0");
 
 	if (0 == strncmp("1", prop, PROPERTY_VALUE_MAX)) {
 		ret = fm_trace_init();
@@ -155,14 +155,10 @@ static int nativeJFmRx_Create(JNIEnv *env,jobject obj,jobject jContextValue)
 	}
 
 	if (bt_chip_enable() < 0) {
-
 		FM_LOGD("bt_chip_enable() failed");
-
 		goto CLEANUP;
 	} else {
-
 		FM_LOGD("bt_chip_enable() done");
-
 	}
 
 	register_fmsig_handlers();
@@ -172,34 +168,26 @@ static int nativeJFmRx_Create(JNIEnv *env,jobject obj,jobject jContextValue)
 		goto CLEANUP;
 	}
 
-
-		FM_LOGD("nativeJFmRx_Create(): Calling FM_RX_Init");
-
-
+	FM_LOGD("nativeJFmRx_Create(): Calling FM_RX_Init");
 
 	fmStatus = FM_RX_Init(fmrx_error_callback);
 	if (fmStatus) {
-	LOGE("failed to init FM rx stack context");
-	goto CLEANUP;
-
+		LOGE("failed to init FM rx stack context");
+		goto CLEANUP;
 	}
-		
 	fmStatus = FM_RX_Create(NULL, fmapp_rx_callback, &fmRxContext);
 
 	if (fmStatus) {
 		LOGE("failed to create FM rx stack context");
 		goto CLEANUP;
 	} else {
-
 		FM_LOGD("create FM rx stack context ret = %x",
 		     (unsigned int)fmRxContext);
-
 	}
 
 	FM_LOGD("%s: FM_RX_Create returned %d, context: %x", __func__,
 	     (int)fmStatus,
 	     (unsigned int)fmRxContext);
-
 
 	FM_LOGD("%s: Setting context value in jContext out parm", __func__);
 
@@ -220,9 +208,8 @@ static int nativeJFmRx_Create(JNIEnv *env,jobject obj,jobject jContextValue)
 	   	LOGE("nativeJFmRx_create: Failed getting setValue method id");
 		goto CLEANUP;
 	}
-	
-	FM_LOGD("nativeJFmRx_create: Calling Java setValue(ox%x) in context's class", (unsigned int)fmRxContext);
 
+	FM_LOGD("nativeJFmRx_create: Calling Java setValue(ox%x) in context's class", (unsigned int)fmRxContext);
 
 	env->CallVoidMethod(jContextValue, setValueMethodId, (unsigned int)fmRxContext);
 	if (env->ExceptionOccurred())
@@ -231,104 +218,73 @@ static int nativeJFmRx_Create(JNIEnv *env,jobject obj,jobject jContextValue)
 		env->ExceptionDescribe();
 		goto CLEANUP;
 	}
-
 	FM_LOGD("nativeJFmRx_create:Exiting Successfully");
-
 
 	return fmStatus;
 
-
 CLEANUP:
-	
+
 	LOGE("nativeJFmRx_create(): Exiting With a Failure indication");
 	return FMC_STATUS_FAILED;
 }
-
-
 
 static jint nativeJFmRx_Destroy(JNIEnv *env, jobject obj,jlong jContextValue)
 {
     FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
     FmRxStatus  status ;
-	
-	FM_LOGD("%s: Entered, calling FM_RX_Destroy", __func__);
 
+	FM_LOGD("%s: Entered, calling FM_RX_Destroy", __func__);
 
 	status = FM_RX_Destroy(&fmRxContext);
 
 	if (status) {
 		LOGE("failed to destroy FM rx stack context");
 		return status;
-
 	} else{
-			
 			FM_LOGD("destroy FM rx stack context Success");
-
 	}
-	
 	FM_LOGD("nativeJFmRx_destroy(): After calling FM_RX_Destroy ret val = %d", status);
 
 	FM_LOGD("nativeJFmRx_destroy(): calling FM_RX_Deinit");
-		
-
 	status = FM_RX_Deinit();
 
 	FM_LOGD("%s: After calling FM_RX_Deinit", __func__);
 
-
 	if (status) {
 		LOGE("failed to deinit FM rx stack context");
 		return status;
-
 	} else {
-
-	FM_LOGD("deinit FM rx stack context Success");
-
+		FM_LOGD("deinit FM rx stack context Success");
 	}
-		
+
+	FM_LOGD("%s: calling fm_close_cmd_socket", __func__);
 	fm_close_cmd_socket();
 
-	
 	FM_LOGD("%s: calling bt_chip_disable", __func__);
-
 	if(bt_chip_disable() < 0) {
 		LOGE("bt_chip_disable failed");
 	} else {
-
 		FM_LOGD("bt_chip_disable Success");
-
 	}
-
-
-	FM_LOGD("%s: calling fm_close_cmd_socket", __func__);
-
 
 	if (fm_stack_debug) {
 		fm_trace_deinit();
 	}
 
-
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
-
 }
 
 
 static int nativeJFmRx_Enable(JNIEnv *env, jobject obj, jlong jContextValue)
 {
     FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
-
 	FM_LOGD("%s: Entered", __func__);
 
-
-    FmRxStatus  status =FM_RX_Enable(fmRxContext);
-	
-    FM_LOGD("%s: FM_RX_Enable() returned %d",__func__,(int)status);
+    FmRxStatus status = FM_RX_Enable(fmRxContext);
+    FM_LOGD("%s: FM_RX_Enable() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
     return status;
 }
 
@@ -337,35 +293,25 @@ static int nativeJFmRx_Enable(JNIEnv *env, jobject obj, jlong jContextValue)
 static int nativeJFmRx_Disable(JNIEnv *env, jobject obj, jlong jContextValue)
 {
     FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
-
 	FM_LOGD("%s: Entered", __func__);
 
-
-    FmRxStatus  status =FM_RX_Disable(fmRxContext);
-	
+    FmRxStatus  status = FM_RX_Disable(fmRxContext);
     FM_LOGD("%s: FM_RX_Disable() returned %d",__func__,(int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
     return status;
 }
-
-
 
 static int nativeJFmRx_SetBand(JNIEnv *env, jobject obj,jlong jContextValue, jint jFmBand)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
 	FmcBand band = (FmcBand)jFmBand;
-
 	FM_LOGD("%s: Entered", __func__);
 
 	FmRxStatus status = FM_RX_SetBand(fmRxContext, (FmcBand)band);
-
 	FM_LOGD("%s: FM_RX_SetBand() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
@@ -376,12 +322,10 @@ static int nativeJFmRx_GetBand(JNIEnv *env, jobject obj,jlong jContextValue)
 
 	FM_LOGD("%s: Entered", __func__);
 
-	FmRxStatus  status =FM_RX_GetBand(fmRxContext);
-
+	FmRxStatus status = FM_RX_GetBand(fmRxContext);
 	FM_LOGD("%s: FM_RX_GetBand() returned %d", __func__, (int)status);
 
-	FM_LOGD("%s: nativeJFmRx_getBand(): Exit", __func__);
-
+	FM_LOGD("%s: Exit", __func__);
 	return status;
 }
 
@@ -389,17 +333,12 @@ static int nativeJFmRx_GetBand(JNIEnv *env, jobject obj,jlong jContextValue)
 static int nativeJFmRx_Tune(JNIEnv *env, jobject obj,jlong jContextValue,jint jFmFreq)
 {
 	FmRxContext *fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
-	FmRxStatus  status =FM_RX_Tune(fmRxContext, (FmcFreq)jFmFreq);
-
+	FmRxStatus status = FM_RX_Tune(fmRxContext, (FmcFreq)jFmFreq);
 	FM_LOGD("%s: FM_RX_Tune() returned %d", __func__, (int)status);
 
-
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
@@ -424,17 +363,13 @@ static int nativeJFmRx_GetTunedFrequency(JNIEnv *env, jobject obj,jlong jContext
 static int nativeJFmRx_SetMonoStereoMode(JNIEnv *env, jobject obj,jlong jContextValue,jint jFmMode)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
 	FmRxStatus status = FM_RX_SetMonoStereoMode(fmRxContext,
 				(FmRxMonoStereoMode)jFmMode);
-
-	FM_LOGD("%s: FM_RX_SetMonoStereoMode() returned %d", __func__,
-	     (int)status);
+	FM_LOGD("%s: FM_RX_SetMonoStereoMode() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
@@ -442,9 +377,7 @@ static int nativeJFmRx_SetMonoStereoMode(JNIEnv *env, jobject obj,jlong jContext
 static int nativeJFmRx_GetMonoStereoMode(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
-
 
 	FmRxStatus status = FM_RX_GetMonoStereoMode(fmRxContext);
 
@@ -452,43 +385,32 @@ static int nativeJFmRx_GetMonoStereoMode(JNIEnv *env, jobject obj,jlong jContext
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 
 static int nativeJFmRx_SetMuteMode(JNIEnv *env, jobject obj,jlong jContextValue,jint jFmMuteMode)
 {
-
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
-
 
 	FmRxStatus status = FM_RX_SetMuteMode(fmRxContext,
 				(FmcMuteMode)jFmMuteMode);
-
 	FM_LOGD("%s: FM_RX_SetMuteMode() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
-
 
 static int nativeJFmRx_GetMuteMode(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_GetMuteMode(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetMuteMode() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
@@ -496,134 +418,104 @@ static int nativeJFmRx_GetMuteMode(JNIEnv *env, jobject obj,jlong jContextValue)
 static int nativeJFmRx_SetRssiThreshold(JNIEnv *env, jobject obj,jlong jContextValue,jint jFmRssi)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
 	FmRxStatus status = FM_RX_SetRssiThreshold(fmRxContext,
 				(FMC_INT)jFmRssi);
-
 	FM_LOGD("%s: FM_RX_SetRssiThreshold() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_GetRssiThreshold(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
 
 	FmRxStatus status = FM_RX_GetRssiThreshold(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetRssiThreshold() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_GetRssi(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_GetRssi(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetRssi() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_SetVolume(JNIEnv *env, jobject obj,jlong jContextValue,jint jFmVolume)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_SetVolume(fmRxContext,(FMC_UINT)jFmVolume);
-
 	FM_LOGD("%s: FM_RX_SetVolume() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
-
 }
 
 static int nativeJFmRx_GetVolume(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
 	FmRxStatus status = FM_RX_GetVolume(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetVolume() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_SetChannelSpacing(JNIEnv *env, jobject obj,jlong jContextValue,jint jFmChannelSpacing)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
 	FmRxStatus status = FM_RX_SetChannelSpacing(fmRxContext,
 				(FMC_UINT)jFmChannelSpacing);
-
 	FM_LOGD("%s: FM_RX_SetChannelSpacing() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
-
 }
 
 static int nativeJFmRx_GetChannelSpacing(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_GetChannelSpacing(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetChannelSpacing() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static jint nativeJFmRx_SetDeEmphasisFilter(JNIEnv *env, jobject obj,jlong jContextValue,jint jFmEmphasisFilter)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
-
 
 	FmRxStatus status = FM_RX_SetDeEmphasisFilter(fmRxContext,
 				(FmcEmphasisFilter) jFmEmphasisFilter);
-
 	FM_LOGD("%s: FM_RX_SetDeEmphasisFilter() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
@@ -631,17 +523,13 @@ static jint nativeJFmRx_SetDeEmphasisFilter(JNIEnv *env, jobject obj,jlong jCont
 static int nativeJFmRx_GetDeEmphasisFilter(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_GetDeEmphasisFilter(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetDeEmphasisFilter() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
@@ -651,141 +539,110 @@ static int nativeJFmRx_Seek(JNIEnv *env, jobject obj,jlong jContextValue,jint jd
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
 	FmRxSeekDirection direction = (FmRxSeekDirection)jdirection;
-
 	FM_LOGD("%s: Entered", __func__);
 
 	FmRxStatus status = FM_RX_Seek(fmRxContext,
 				(FmRxSeekDirection)direction);
-
 	FM_LOGD("%s: FM_RX_Seek() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 
 static int nativeJFmRx_StopSeek(JNIEnv *env, jobject obj,jlong jContextValue)
 {
-	FmRxContext * fmRxContext =(FmRxContext *)jContextValue;
-
+	FmRxContext *fmRxContext = (FmRxContext *)jContextValue;
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_StopSeek(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_StopSeek() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_EnableRDS(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_EnableRds(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_EnableRds() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_DisableRDS(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_DisableRds(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_DisableRds() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_EnableAudioRouting(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
 	FmRxStatus status = FM_RX_EnableAudioRouting(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_EnableAudioRouting() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int  nativeJFmRx_DisableAudioRouting(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_DisableAudioRouting(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_DisableAudioRouting() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_SetRdsAfSwitchMode(JNIEnv *env, jobject obj,jlong jContextValue,jint jRdsAfSwitchMode)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
 	FmRxStatus status = FM_RX_SetRdsAfSwitchMode(fmRxContext,
 				(FmRxRdsAfSwitchMode)jRdsAfSwitchMode);
-
 	FM_LOGD("%s: FM_RX_SetRdsAfSwitchMode() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_GetRdsAfSwitchMode(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_GetRdsAfSwitchMode(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetRdsAfSwitchMode() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_ChangeAudioTarget (JNIEnv *env, jobject obj,jlong jContextValue, jint jFmRxAudioTargetMask, jint digitalConfig)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
-
 
 	FmRxStatus status = FM_RX_ChangeAudioTarget(fmRxContext,
 				(FmRxAudioTargetMask)jFmRxAudioTargetMask,
@@ -795,18 +652,14 @@ static int nativeJFmRx_ChangeAudioTarget (JNIEnv *env, jobject obj,jlong jContex
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
-
 }
 
 
 static int nativeJFmRx_ChangeDigitalTargetConfiguration(JNIEnv *env, jobject obj,jlong jContextValue,jint digitalConfig)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
-
 
 	FmRxStatus status = FM_RX_ChangeDigitalTargetConfiguration(
 				fmRxContext,
@@ -816,27 +669,21 @@ static int nativeJFmRx_ChangeDigitalTargetConfiguration(JNIEnv *env, jobject obj
 	     __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
-
 }
 
 
 static int nativeJFmRx_SetRfDependentMuteMode(JNIEnv *env, jobject obj,jlong jContextValue, jint mode)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
-
 
 	FmRxStatus status = FM_RX_SetRfDependentMuteMode(fmRxContext,
 				(FmRxRfDependentMuteMode)mode);
-
 	FM_LOGD("%s: FM_RX_SetRfDependentMuteMode() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
@@ -844,36 +691,27 @@ static int nativeJFmRx_SetRfDependentMuteMode(JNIEnv *env, jobject obj,jlong jCo
 static int nativeJFmRx_GetRfDependentMute(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_GetRfDependentMute(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetRfDependentMute() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
-
 }
 
 
 static int nativeJFmRx_SetRdsSystem(JNIEnv *env, jobject obj,jlong jContextValue, jint rdsSystem)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
-
 
 	FmRxStatus status = FM_RX_SetRdsSystem(fmRxContext,
 				(FmcRdsSystem)rdsSystem);
-
 	FM_LOGD("%s: FM_RX_SetRdsSystem() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
@@ -881,16 +719,12 @@ static int nativeJFmRx_SetRdsSystem(JNIEnv *env, jobject obj,jlong jContextValue
 static int nativeJFmRx_GetRdsSystem(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_GetRdsSystem(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetRdsSystem() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
@@ -898,209 +732,157 @@ static int nativeJFmRx_GetRdsSystem(JNIEnv *env, jobject obj,jlong jContextValue
 static int nativeJFmRx_SetRdsGroupMask(JNIEnv *env, jobject obj,jlong jContextValue, jlong groupMask)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
-
 
 	FmRxStatus status = FM_RX_SetRdsGroupMask(fmRxContext,
 				(FmcRdsGroupTypeMask)groupMask);
 
 	FM_LOGD("%s: FM_RX_SetRdsGroupMask() returned %d", __func__, (int)status);
-
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
-
 }
 
 static int  nativeJFmRx_GetRdsGroupMask(JNIEnv *env, jobject obj,jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_GetRdsGroupMask(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetRdsGroupMask() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_CompleteScan(JNIEnv *env, jobject obj, jlong jContextValue)
 {
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
 	FmRxStatus status = FM_RX_CompleteScan(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_CompleteScan() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_GetCompleteScanProgress(JNIEnv *env, jobject obj, jlong jContextValue)
 {
-
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_GetCompleteScanProgress(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetCompleteScanProgress() returned %d", __func__,
 	     (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_StopCompleteScan(JNIEnv *env, jobject obj, jlong jContextValue)
 {
-
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_StopCompleteScan(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_StopCompleteScan() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 static int nativeJFmRx_IsValidChannel(JNIEnv *env, jobject obj, jlong jContextValue)
 {
-
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
 
-
 	FmRxStatus status = FM_RX_IsValidChannel(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_IsValidChannel() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
 
 static int nativeJFmRx_GetFwVersion(JNIEnv *env, jobject obj, jlong jContextValue)
 {
-
 	FmRxContext * fmRxContext = (FmRxContext *)jContextValue;
-
 	FM_LOGD("%s: Entered", __func__);
-	FM_LOGD("%s: Exit", __func__);
 
 	FmRxStatus status = FM_RX_GetFwVersion(fmRxContext);
-
 	FM_LOGD("%s: FM_RX_GetFwVersion() returned %d", __func__, (int)status);
 
 	FM_LOGD("%s: Exit", __func__);
-
 	return status;
 }
 
-
 //##############################################################################
-//								 SIGNALS
+//                  SIGNALS
 //##############################################################################
-
 extern "C"
 {
 
-
 /**********************************************************************
-*				Callback registration
-
+*                   Callback registration
 ***********************************************************************/
-
-
 void fmrx_error_callback(const fm_rx_status status)
 {
-
 	LOGI("fmrx_error_callback: Entered, ");
 
 	JNIEnv* env = NULL;
 	bool attachedThread = false;
 	int jRet ;
 
-        /* check whether the current thread is attached to a virtual machine
-           instance, if no only then try to attach to the current thread. */
+	/* check whether the current thread is attached to a virtual machine
+	   instance, if no only then try to attach to the current thread. */
 
-	jRet = g_jVM->GetEnv((void **)&env,JNI_VERSION_1_4);
+	jRet = g_jVM->GetEnv((void **)&env, JNI_VERSION_1_4);
 
 	if(jRet < 0)
 	{
 		LOGE("failed to get JNI env,assuming native thread");
 		jRet = g_jVM->AttachCurrentThread((&env), NULL);
 
-		if(jRet != JNI_OK)
-		{
+		if(jRet != JNI_OK) {
 			LOGE("failed to atatch to current thread %d",jRet);
 			return ;
 		}
-
 		attachedThread = true;
 	}
 
-	if(env == NULL)
-	{
+	if(env == NULL) {
 		LOGE("fmrx_error_callback: Entered, env is null");
 		return;
 	}
 
+	FM_LOGD("fmrx_error_callback: Calling CallStaticVoidMethod");
+	env->CallStaticVoidMethod(_sJClass,_sMethodId_nativeCb_fmRxCmdError, (jint)status);
 
-
-		FM_LOGD("fmrx_error_callback:Calling CallStaticVoidMethod");
-
-
-		env->CallStaticVoidMethod(_sJClass,_sMethodId_nativeCb_fmRxCmdError, (jint)status
-						);
-
-  if (env->ExceptionOccurred())    {
-    LOGE("fmrx_error_callback:  ExceptionOccurred");
-    goto CLEANUP;
-    }
-
+	if (env->ExceptionOccurred())    {
+		LOGE("fmrx_error_callback:  ExceptionOccurred");
+		goto CLEANUP;
+	}
     FM_LOGD("fmrx_error_callback: Exiting, Calling DetachCurrentThread at the END");
 
+	if(attachedThread == true)
+		g_jVM->DetachCurrentThread();
+	return;
 
-    if(attachedThread == true)
-        g_jVM->DetachCurrentThread();
-
-    return;
-    
-    CLEANUP:
+CLEANUP:
 	LOGE("fmrx_error_callback: Exiting due to failure");
-	if (env->ExceptionOccurred())    {
-	env->ExceptionDescribe();
-	env->ExceptionClear();
+	if (env->ExceptionOccurred()) {
+		env->ExceptionDescribe();
+		env->ExceptionClear();
 	}
 //Sujesh ChipManager Start
     if(attachedThread == true)
         g_jVM->DetachCurrentThread();
 //Sujesh ChipManager End
         return;
-
 }
 
 void fmapp_rx_callback(const fm_rx_event_s *event)
 {
-
 	FM_LOGD("%s: Entered, got event %d", __func__, event->eventType);
 
 	JNIEnv* env = NULL;
@@ -1116,17 +898,15 @@ void fmapp_rx_callback(const fm_rx_event_s *event)
 	if(env == NULL)	{
 		LOGI("%s: Entered, env is null", __func__);
 	} else {
-
 		FM_LOGD("%s: jEnv %p", __func__, (void *)env);
-
 	}
 
 	switch (event->eventType) {
 		case FM_RX_EVENT_CMD_DONE:
 
-		FM_LOGD("%s: Calling CallStaticVoidMethod", __func__);
+			FM_LOGD("%s: Calling CallStaticVoidMethod", __func__);
 
-		env->CallStaticVoidMethod(_sJClass,
+			env->CallStaticVoidMethod(_sJClass,
 				_sMethodId_nativeCb_fmRxCmdDone,
 				(jint)event->status,
 				(jint)event->p.cmdDone.cmd,
@@ -1135,10 +915,10 @@ void fmapp_rx_callback(const fm_rx_event_s *event)
 
 	case FM_RX_EVENT_MONO_STEREO_MODE_CHANGED:
 
-		FM_LOGD("%s: EVENT FM_RX_EVENT_MONO_STEREO_MODE_CHANGED",
-		     __func__);
+			FM_LOGD("%s: EVENT FM_RX_EVENT_MONO_STEREO_MODE_CHANGED",
+					__func__);
 
-		env->CallStaticVoidMethod(_sJClass,
+			env->CallStaticVoidMethod(_sJClass,
 				_sMethodId_nativeCb_fmRxMonoStereoModeChanged,
 				(jint)event->status,
 				(jint)event->p.monoStereoMode.mode);
@@ -1155,10 +935,10 @@ void fmapp_rx_callback(const fm_rx_event_s *event)
 		break;
 
 	case FM_RX_EVENT_AF_SWITCH_START:
-		
-		FM_LOGD("fmapp_rx_callback():EVENT --------------->FM_RX_EVENT_AF_SWITCH_START");    
+
+		FM_LOGD("fmapp_rx_callback():EVENT --------------->FM_RX_EVENT_AF_SWITCH_START");
 		FM_LOGD("AF switch process has started...");
-		
+
 		env->CallStaticVoidMethod(_sJClass,_sMethodId_nativeCb_fmRxAfSwitchStart,
 						(jint)event->status,
 						(jint)event->p.afSwitchData.pi,
@@ -1232,7 +1012,6 @@ void fmapp_rx_callback(const fm_rx_event_s *event)
 		FM_LOGD("%s: EVENT FM_RX_EVENT_PS_CHANGED len %d", __func__, len);
 
 		for(int i = 0; i< len ; i++)
-
 			FM_LOGD("%s: fmRxPsChanged name[] =  %x",
 			     __func__, event->p.psData.name[i]);
 
@@ -1399,11 +1178,9 @@ void fmapp_rx_callback(const fm_rx_event_s *event)
 		env->DeleteLocalRef(jChannelsData);
 
 	FM_LOGD("%s: Exiting, Calling DetachCurrentThread at the END", __func__);
-
 	g_jVM->DetachCurrentThread();
 
 	FM_LOGD("fmapp_rx_callback: Exiting");
-
 	return;
 
 CLEANUP:
@@ -1428,7 +1205,6 @@ CLEANUP:
 }
 /**********************************************************************
 *				Callback registration
-
 ***********************************************************************/
 #define VERIFY_METHOD_ID(methodId) \
 	if (!_VerifyMethodId(methodId, #methodId)) { \
@@ -1452,18 +1228,12 @@ CLEANUP:
 
 void nativeJFmRx_ClassInitNative(JNIEnv* env, jclass clazz)
 {
-
 	FM_LOGD("%s: Entered", __func__);
-
 	_jFmEnvTest = env;
 
-
 	if (NULL == _jFmEnvTest) {
-
 		FM_LOGD("%s: NULL == _jFmEnvTest", __func__);
-
 	}
-
 
 	/*
 	 * Save class information in global reference in order to prevent
@@ -1480,7 +1250,6 @@ void nativeJFmRx_ClassInitNative(JNIEnv* env, jclass clazz)
 				"nativeCb_fmRxRawRDS",
 				"(II[B)V");
 	VERIFY_METHOD_ID(_sMethodId_nativeCb_fmRxRawRDS);
-
 
 	_sMethodId_nativeCb_fmRxRadioText = env->GetStaticMethodID(clazz,
 				"nativeCb_fmRxRadioText",
@@ -1520,10 +1289,9 @@ void nativeJFmRx_ClassInitNative(JNIEnv* env, jclass clazz)
 				"(IIII)V");
 	VERIFY_METHOD_ID(_sMethodId_nativeCb_fmRxAfSwitchFreqFailed);
 
-
 	_sMethodId_nativeCb_fmRxAfSwitchStart  = env->GetStaticMethodID(clazz,
-								"nativeCb_fmRxAfSwitchStart",
-								"(IIII)V");
+				"nativeCb_fmRxAfSwitchStart",
+				"(IIII)V");
 	VERIFY_METHOD_ID(_sMethodId_nativeCb_fmRxAfSwitchStart);
 
 	_sMethodId_nativeCb_fmRxAfSwitchComplete = env->GetStaticMethodID(
@@ -1550,13 +1318,12 @@ void nativeJFmRx_ClassInitNative(JNIEnv* env, jclass clazz)
 
 
 	_sMethodId_nativeCb_fmRxCmdError = env->GetStaticMethodID(clazz,
-								"nativeCb_fmRxCmdError",
-								"(I)V");
+				"nativeCb_fmRxCmdError",
+				"(I)V");
 	VERIFY_METHOD_ID(_sMethodId_nativeCb_fmRxCmdError);
+}
 
-    }
-    
-    static JNINativeMethod JFmRxNative_sMethods[] = {
+static JNINativeMethod JFmRxNative_sMethods[] = {
     /* name, signature, funcPtr */
     {"nativeJFmRx_ClassInitNative", "()V", (void*)nativeJFmRx_ClassInitNative},
     {"nativeJFmRx_Create", "(Lcom/ti/jfm/core/JFmContext;)I", (void*)nativeJFmRx_Create},
@@ -1601,7 +1368,7 @@ void nativeJFmRx_ClassInitNative(JNIEnv* env, jclass clazz)
     {"nativeJFmRx_GetFwVersion","(J)I",(void*)nativeJFmRx_GetFwVersion},
     {"nativeJFmRx_GetCompleteScanProgress","(J)I",(void*)nativeJFmRx_GetCompleteScanProgress},
     {"nativeJFmRx_StopCompleteScan","(J)I",(void*)nativeJFmRx_StopCompleteScan}
-    };
+};
 
 /*
  * Register several native methods for one class.
@@ -1636,10 +1403,10 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 		goto bail;
 	}
 
-	if (!registerNatives(env,
-			     "com/ti/jfm/core/JFmRx",
-	                     JFmRxNative_sMethods,
-			     NELEM(JFmRxNative_sMethods))) {
+	if ( !registerNatives(env, "com/ti/jfm/core/JFmRx",
+							JFmRxNative_sMethods,
+							NELEM(JFmRxNative_sMethods)) )
+	{
 		goto bail;
 	}
 
@@ -1647,8 +1414,6 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 
 	/* success -- return valid version number */
 	result = JNI_VERSION_1_4;
-
 bail:
 	return result;
 }
-

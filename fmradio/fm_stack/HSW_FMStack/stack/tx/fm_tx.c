@@ -89,9 +89,8 @@ FMC_STATIC FMC_U8 *_FM_TX_FmTxStatusStr(FmTxStatus status);
 
 FMC_STATIC FMC_BOOL _FM_TX_IsRdsAutoAction(FmTxCmdType cmdT);
 
-FmTxStatus FM_TX_Init(void)
+FmTxStatus FM_TX_Init(handle_t hMcpf)
 {
-	/*FmcStatus	fmcStatus = FM_TX_STATUS_SUCCESS;*/
 	FmTxStatus	status = FM_TX_STATUS_SUCCESS;
 	FmcStatus  fmcStatus;
 	FMC_FUNC_START(("FM_TX_Init"));
@@ -103,7 +102,7 @@ FmTxStatus FM_TX_Init(void)
 	_fmTxInitState = _FM_TX_INIT_STATE_INIT_FAILED;
 
 	/* Init RX & TX common module */
-	fmcStatus = FMCI_Init();
+	fmcStatus = FMCI_Init(hMcpf);
 	FMC_VERIFY_FATAL((status == FMC_STATUS_SUCCESS), fmcStatus, 
 						("FM_TX_Init: FMCI_Init Failed (%s)", FMC_DEBUG_FmcStatusStr(fmcStatus)));
 

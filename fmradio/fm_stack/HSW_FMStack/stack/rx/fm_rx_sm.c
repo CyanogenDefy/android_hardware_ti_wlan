@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include "mcpf_defs.h"
 #include "fmc_os.h"
 #include "fmc_config.h"
 
@@ -106,6 +107,8 @@ typedef struct {
     FMC_U8      curStage; 
     FMC_U8      status;       
     FMC_BOOL    isCompleteScanProgressFinish;
+    FMC_BOOL    isStopCompleteScanRequest;
+
 	_FmRxStopCompleteScan     stopCompleteScanStatus;
 
 } _FmRxCompleteScanInfo;
@@ -282,6 +285,8 @@ FMC_STATIC void HandlePowerOnFinish(void);
  *                  
  *******************************************************************************************************************/
 FMC_STATIC void HandlePowerOffStart(void);
+FMC_STATIC void HandlePowerOffDisableAudioRoutingStopVacOperation(void);
+FMC_STATIC void HandlePowerOffDisableAudioRoutingStopVacFmOBtOperation(void);
 FMC_STATIC void HandlePowerOffTransportOff(void);
 FMC_STATIC void HandlePowerOffFinish(void);
 /*******************************************************************************************************************
@@ -548,7 +553,6 @@ FMC_STATIC void HandleSetGroupMaskStartEnd(void);
 /*******************************************************************************************************************
  *                  
  *******************************************************************************************************************/
-//FMC_STATIC void HandleGetTunedFreqStartEnd(void);
 FMC_STATIC void HandleGetTunedFreqStart(void);
 FMC_STATIC void HandleGetTunedFreqEnd(void);
 
@@ -588,6 +592,7 @@ FMC_STATIC void fm_recvd_initCmdCmplt(void);
 FMC_STATIC void fm_recvd_readCmdCmplt(FMC_U8 *data, FMC_UINT    dataLen);
 FMC_STATIC void fm_recvd_writeCmdCmplt(void);
 FMC_STATIC void fm_recvd_intterupt(void);
+FMC_STATIC FMC_U16 getMask(void);
 /*******************************************************************************************************************
  *                  
  *******************************************************************************************************************/
@@ -642,6 +647,8 @@ FMC_STATIC _FmRxSmDefualtConfigValue _fmRxEnableDefualtSimpleCommandsToSet[] = {
 
 /* Handlers for FM_RX_CMD_DISABLE */
 FMC_STATIC FmRxOpCurHandler powerOffHandler[] = {HandlePowerOffStart,
+                                                            HandlePowerOffDisableAudioRoutingStopVacOperation,
+                                                            HandlePowerOffDisableAudioRoutingStopVacFmOBtOperation,
                                                             HandlePowerOffTransportOff,
                                                             HandlePowerOffFinish};
 FMC_STATIC _FmRxSmCmdInfo _fmRxSmCmdInfo_powerOffHandler = {powerOffHandler, 
@@ -1057,7 +1064,7 @@ FMC_STATIC void _FM_RX_SM_InitDefualtValues(void)
     _fmRxSmData.band = FMC_CONFIG_RX_BAND;
     _fmRxSmData.tunedFreq = FMC_UNDEFINED_FREQ;
     _fmRxSmData.volume = FMC_FW_RX_FM_VOLUMN_INITIAL_VALUE/FMC_FW_RX_FM_GAIN_STEP;
-    _fmRxSmData.muteMode = FMC_NOT_MUTE;
+    _fmRxSmData.muteMode = FMC_CONFIG_RX_MUTE_STATUS;
     _fmRxSmData.rfDependedMute = FM_RX_RF_DEPENDENT_MUTE_OFF;
     _fmRxSmData.rssiThreshold = FMC_CONFIG_RX_SEARCH_LVL;
     _fmRxSmData.afMode = FM_RX_RDS_AF_SWITCH_MODE_OFF ;
@@ -1077,8 +1084,6 @@ FMC_STATIC void _FM_RX_SM_InitDefualtValues(void)
     _fmRxSmData.rdsGroupMask = FM_RDS_GROUP_TYPE_MASK_ALL;
     _fmRxSmData.rdsRdbsSystem = FMC_CONFIG_RX_RDS_SYSTEM;
 
-    
-        
 }
 FMC_STATIC void _FM_RX_SM_ResetStationParams(FMC_U32 freq)
 {
@@ -1102,7 +1107,7 @@ FMC_STATIC void _FM_RX_SM_ResetRdsData(void)
     _fmRxSmData.rdsParams.psNameSameCount = 0;
     _fmRxSmData.curStationParams.piCode = NO_PI_CODE; 
     _fmRxSmData.curStationParams.afListSize = 0; 
-    FMC_OS_MemCopy(_fmRxSmData.curStationParams.psName, (FMC_U8*)("\0"), RDS_PS_NAME_SIZE); 
+    FMC_OS_MemCopy(_fmRxSmData.curStationParams.psName, (FMC_U8*)("\0\0\0\0\0\0\0\0"), RDS_PS_NAME_SIZE); 
     
     _fmRxSmData.rdsParams.prevABFlag = RDS_PREV_RT_AB_FLAG_RESET; 
     /*when we reset the rds data should be cleaned*/
@@ -1123,12 +1128,11 @@ FmRxStatus FM_RX_SM_Init(void)
     FMC_FUNC_START("FM_RX_SM_Init");
 
     FMC_OS_MemSet(&_fmRxSmData.context, 0, sizeof(FmRxContext));
-    
+
     _FM_RX_SM_InitCmdsTable();
     _FM_RX_SM_InitDefualtValues();
-    
+
     _FM_RX_SM_ResetStationParams(FMC_UNDEFINED_FREQ);
-    
     
     _fmRxSmData.context.state = FM_RX_SM_CONTEXT_STATE_DESTROYED;
     _fmRxSmData.currCmdInfo.smState = _FM_RX_SM_STATE_NONE;
@@ -1138,6 +1142,7 @@ FmRxStatus FM_RX_SM_Init(void)
     CCM_VAC_RegisterCallback(CCM_GetVac(_FMC_CORE_GetCcmObjStackHandle()),CAL_OPERATION_FM_RX_OVER_SCO,_FM_RX_SM_TccmVacCb);
     CCM_VAC_RegisterCallback(CCM_GetVac(_FMC_CORE_GetCcmObjStackHandle()),CAL_OPERATION_FM_RX_OVER_A3DP,_FM_RX_SM_TccmVacCb);
 #endif
+
     FMC_FUNC_END();
     
     return FM_RX_STATUS_SUCCESS;
@@ -1351,12 +1356,11 @@ FMC_STATIC void _FM_RX_SM_Events_Process(void)
                 {
                     _fmRxSmData.callReason = FM_RX_SM_CALL_REASON_CMD_CMPLT_EVT; 
                 }
+                /* Resetting the upperEvent must appear after the checkUpperEvent */
+                _fmRxSmData.upperEvent = FM_RX_SM_UPPER_EVENT_NONE; 
 
                 fmOpAllHandlersArray[_fmRxSmData.currCmdInfo.baseCmd->cmdType].opHandlerArray[_fmRxSmData.currCmdInfo.stageIndex]();
            
-				/* Resetting the upperEvent must appear after the checkUpperEvent and after the function call */
-                _fmRxSmData.upperEvent = FM_RX_SM_UPPER_EVENT_NONE; 
-
             }
             
             else
@@ -1634,6 +1638,7 @@ FMC_STATIC void HandlePowerOnStart(void)
         
         status = FMC_CORE_TransportOn();
 
+        FMC_LOG_INFO(("HandlePowerOnStart: FMC_CORE_TransportOn returned %d",status));
         if (status == FM_RX_STATUS_SUCCESS)
         {
             prepareNextStage(_FM_RX_SM_STATE_NONE, INCREMENT_STAGE);
@@ -1706,8 +1711,9 @@ FMC_STATIC void HandleFmcPowerOnStartInitScript(void)
     McpBtsSpExecuteScriptCbData scriptCbData;
     char                        fileName[MCP_HAL_CONFIG_FS_MAX_FILE_NAME_LEN_CHARS *
                                          MCP_HAL_CONFIG_MAX_BYTES_IN_UTF8_CHAR];
-    McpUtf8                     scriptFullFileName[MCP_HAL_CONFIG_FS_MAX_PATH_LEN_CHARS *
-                                                   MCP_HAL_CONFIG_MAX_BYTES_IN_UTF8_CHAR];
+    McpUtf8                     scriptFullFileName[(MCP_HAL_CONFIG_FS_MAX_PATH_LEN_CHARS * MCP_HAL_CONFIG_MAX_BYTES_IN_UTF8_CHAR) + 
+					      (MCP_HAL_CONFIG_FS_MAX_FILE_NAME_LEN_CHARS * MCP_HAL_CONFIG_MAX_BYTES_IN_UTF8_CHAR)];
+
 
 
     _fmRxSmData.fmAsicVersion = _fmRxSmData.context.transportEventData.read_param;
@@ -1797,8 +1803,10 @@ FMC_STATIC void HandleFmRxPowerOnStartInitScript(void)
     McpBtsSpExecuteScriptCbData scriptCbData;
     char                        fileName[MCP_HAL_CONFIG_FS_MAX_FILE_NAME_LEN_CHARS *
                                          MCP_HAL_CONFIG_MAX_BYTES_IN_UTF8_CHAR];
-    McpUtf8                     scriptFullFileName[MCP_HAL_CONFIG_FS_MAX_PATH_LEN_CHARS *
-                                                   MCP_HAL_CONFIG_MAX_BYTES_IN_UTF8_CHAR];
+    McpUtf8                     scriptFullFileName[(MCP_HAL_CONFIG_FS_MAX_PATH_LEN_CHARS * MCP_HAL_CONFIG_MAX_BYTES_IN_UTF8_CHAR) + 
+					      (MCP_HAL_CONFIG_FS_MAX_FILE_NAME_LEN_CHARS * MCP_HAL_CONFIG_MAX_BYTES_IN_UTF8_CHAR)];
+
+    FMC_LOG_DEBUG(("HandleFmRxPowerOnStartInitScript"));
 
     MCP_HAL_STRING_Sprintf(fileName, "%s_%x.%d.bts", 
                            FMC_CONFIG_SCRIPT_FILES_FM_RX_INIT_NAME,
@@ -1937,6 +1945,34 @@ FMC_STATIC void HandlePowerOffStart(void)
     /* Send power off command */
     FMC_CORE_SendPowerModeCommand(FMC_FALSE);
 }
+
+FMC_STATIC void HandlePowerOffDisableAudioRoutingStopVacOperation(void)
+{   
+    if(_fmRxSmData.vacParams.audioTargetsMask&FM_RX_VAC_RX_OPERATION_MASK)
+    {   /* if rx vac operation stated stop it*/
+        _handleVacOpStateAndMove2NextStage(CCM_VAC_StopOperation(CCM_GetVac(_FMC_CORE_GetCcmObjStackHandle()),CAL_OPERATION_FM_RX));
+    }
+    else
+    {   /* else simulate success and move to next stage*/
+        _handleVacOpStateAndMove2NextStage(CCM_VAC_STATUS_SUCCESS);
+    }
+}
+FMC_STATIC void HandlePowerOffDisableAudioRoutingStopVacFmOBtOperation(void)
+{
+    if(_fmRxSmData.vacParams.audioTargetsMask&FM_RX_TARGET_MASK_FM_OVER_SCO)
+    {   /* if fm o sco vac operation stated stop it*/
+        _handleVacOpStateAndMove2NextStage(CCM_VAC_StopOperation(CCM_GetVac(_FMC_CORE_GetCcmObjStackHandle()),CAL_OPERATION_FM_RX_OVER_SCO));
+    }
+    else if(_fmRxSmData.vacParams.audioTargetsMask&FM_RX_TARGET_MASK_FM_OVER_A3DP)
+    {/* if fm o a3dp vac operation stated stop it*/
+        _handleVacOpStateAndMove2NextStage(CCM_VAC_StopOperation(CCM_GetVac(_FMC_CORE_GetCcmObjStackHandle()),CAL_OPERATION_FM_RX_OVER_A3DP));
+    }
+    else
+    {/* else simulate success and move to next stage*/
+        _handleVacOpStateAndMove2NextStage(CCM_VAC_STATUS_SUCCESS);
+    }
+}
+
 FMC_STATIC void HandlePowerOffTransportOff(void)
 {
     FmcStatus status;
@@ -3117,6 +3153,9 @@ FMC_STATIC void HandleStopCompleteScanStart(void)
         /* Update to next handler */
         prepareNextStage(_FM_RX_SM_STATE_WAITING_FOR_CC, 0);
 
+        /* Update the Flasg that Stop Scan was requested */
+        _fmRxSmData.completeScanOp.isStopCompleteScanRequest = FMC_TRUE;
+
         /* Stop the seek */
         FMC_CORE_SendWriteCommand(FMC_FW_OPCODE_RX_TUNER_MODE_SET,  FMC_FW_RX_TUNER_MODE_STOP_SEARCH);    
 }
@@ -3183,6 +3222,11 @@ ECCM_VAC_Status StartAudioOperation(ECAL_Operation operation)
     ptConfig.eSampleFreq = _fmRxSmData.vacParams.eSampleFreq;
     ptConfig.uChannelNumber = _getRxChannelNumber();
     
+    if (operation >= CAL_OPERATION_MAX_NUM)
+    	{
+    	   return  CCM_VAC_STATUS_FAILURE_OPERATION_NOT_SUPPORTED;
+    	}
+		
     /*  remember the starting operation. this is needed if recieving unavailible resources we need to 
     *   forward the app the operation, which can be ither the fm rx op or the fm_o_sco/a3dp 
     */
@@ -3197,7 +3241,9 @@ ECCM_VAC_Status StartAudioOperation(ECAL_Operation operation)
 }
 FMC_STATIC void HandleEnableAudioRoutingStart(void)
 {
-#if obc
+#ifdef BLUEZ_SOLUTION
+        _handleVacOpStateAndMove2NextStage(CCM_VAC_STATUS_SUCCESS);
+#elif obc
     /* if rx operation needed (rx and not fm_o_sco of fm_o_a3dp)*/
     if(_fmRxSmData.vacParams.audioTargetsMask&FM_RX_VAC_RX_OPERATION_MASK)
     {
@@ -3340,6 +3386,11 @@ ECCM_VAC_Status SendChangeAudioTargets(ECAL_Operation operation)
     ECAL_ResourceMask targetsMask;
     FmRxSetAudioTargetCmd *setAudioTargetsCmd = (FmRxSetAudioTargetCmd*)_fmRxSmData.currCmdInfo.baseCmd;
 
+     if (operation >= CAL_OPERATION_MAX_NUM)
+     	{
+     	   return CCM_VAC_STATUS_FAILURE_OPERATION_NOT_SUPPORTED;
+     	}
+	 
     /* get the digital configuration*/
     ptConfig.eSampleFreq = setAudioTargetsCmd->eSampleFreq;
     ptConfig.uChannelNumber = _getRxChannelNumber();
@@ -4728,6 +4779,8 @@ void _FM_RX_SM_TiSpExecuteCompleteCb(McpBtsSpContext *context, McpBtsSpStatus st
     FMC_UNUSED_PARAMETER(status);
     /* Update to next handler */
     
+    FMC_LOG_DEBUG(("FM RX: _FM_RX_SM_TiSpExecuteCompleteCb"));
+    
     prepareNextStage(_FM_RX_SM_STATE_NONE, INCREMENT_STAGE);
 
     fmOpAllHandlersArray[_fmRxSmData.currCmdInfo.baseCmd->cmdType].opHandlerArray[_fmRxSmData.currCmdInfo.stageIndex]();
@@ -5339,12 +5392,31 @@ FMC_U16 _getGainValue(FMC_UINT  gain)
 return MCP_HAL_MISC_GetGainValue(gain);
 }
 
+/*Function will return the need mask to enable in case 
+   FM_RX_INTERNAL_HANDLE_GEN_INT is in queue */
+FMC_STATIC FMC_U16 getMask(void)
+{   
+     /* if  FM_RX_INTERNAL_HANDLE_GEN_INT is in the Queue dont enable the interputs
+          They will be enabled  */
+     if(FM_RX_SM_IsCmdPending(FM_RX_INTERNAL_HANDLE_GEN_INT))
+    {       
+        _fmRxSmData.interruptInfo.fmMask=0;
+        FMC_LOG_DEBUG(("Fm_RX-getMask_mask is: 0x0"));
+    }    
+    else
+    {
+        _fmRxSmData.interruptInfo.fmMask = _fmRxSmData.interruptInfo.gen_int_mask;
+        FMC_LOG_DEBUG(("Fm_RX-getMask_mask is:0x%x",_fmRxSmData.interruptInfo.fmMask ));
+    }   
 
+   return _fmRxSmData.interruptInfo.fmMask;
+}
+
+/* was buggy in fmapp */
  void send_fm_error_statusToApp()
 {
-
 	FmRxStatus      status = FM_RX_STATUS_INTERNAL_ERROR ;
-	/*The callback will be passed to the APP layer only if FM Context is available*/
+	// The callback will be passed to the APP layer only if FM Context is available
 	if(FM_RX_SM_GetContextState() ==  FM_RX_SM_CONTEXT_STATE_DESTROYED)
 	{
 		FM_TRACE("send_fm_error_statusToApp -no context");
@@ -5352,14 +5424,9 @@ return MCP_HAL_MISC_GetGainValue(gain);
 	else
 	{
 		FM_TRACE("send_fm_error_statusToApp");
-		/*Call the FM_RX_Error callback function*/
-		(fmRxErrorAppCallback)(status);
-
+		// Call the FM_RX_Error callback function
+		//(fmRxErrorAppCallback)(status);
 	}
 }
 
-
-
 #endif /*FMC_CONFIG_FM_STACK == FMC_CONFIG_ENABLED*/
-
-

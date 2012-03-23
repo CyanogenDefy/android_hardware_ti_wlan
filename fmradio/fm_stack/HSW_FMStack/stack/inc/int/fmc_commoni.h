@@ -66,7 +66,7 @@ typedef void (*FmciFmTaskClientCallbackFunc)(FmcOsEvent osEvent);
     The function may be called more than once to allow TX & RX to be independent. However,
     FMCI_Deinit must be called the same number of times.
 */
-FmcStatus FMCI_Init(void);
+FmcStatus FMCI_Init(handle_t hMcpf);
 
 /*
     Deinitializes the common FM module. 
@@ -116,4 +116,3 @@ FmcStatus FMCI_OS_CancelTimer(void);
 
 
 #endif  /* __FMC_COMMONI_H */
-

@@ -170,7 +170,7 @@ static int nativeJFmRx_Create(JNIEnv *env,jobject obj,jobject jContextValue)
 
 	FM_LOGD("nativeJFmRx_Create(): Calling FM_RX_Init");
 
-	fmStatus = FM_RX_Init(fmrx_error_callback);
+	fmStatus = FM_RX_Init(NULL, fmrx_error_callback);
 	if (fmStatus) {
 		LOGE("failed to init FM rx stack context");
 		goto CLEANUP;

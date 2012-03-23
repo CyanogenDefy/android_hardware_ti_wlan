@@ -48,6 +48,7 @@
 #include "fmc_types.h"
 #include "fmc_common.h"
 #include "ccm_audio_types.h"
+#include "mcpf_defs.h"
 
 /********************************************************************************
  *
@@ -385,7 +386,7 @@ struct _FmTxEvent
 /*-------------------------------------------------------------------------------
  * FM_TX_Init()
  *
- * Brief:  
+ * Brief:
  *      Initializes FM TX module.
  *
  * Description:
@@ -404,7 +405,8 @@ struct _FmTxEvent
  *
  *      FMC_STATUS_FAILED -  FM failed initialization.
  */
-FmcStatus FM_TX_Init(void);
+FmcStatus FM_TX_Init(handle_t hMcpf);
+
 
 /*-------------------------------------------------------------------------------
  * FM_Deinit()

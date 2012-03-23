@@ -279,8 +279,6 @@ typedef FMC_UINT FmRxCmdType;
 
 #define FM_RX_CMD_ENABLE_AUDIO				((FmRxCmdType)29)	/* Set Audio Routing command */
 #define FM_RX_CMD_DISABLE_AUDIO 				((FmRxCmdType)30)	/* Get Audio Routing command */
-#define FM_RX_CMD_SET_AUDIO_ROUTING FM_RX_CMD_ENABLE_AUDIO
-#define FM_RX_CMD_GET_AUDIO_ROUTING FM_RX_CMD_DISABLE_AUDIO
 #define FM_RX_CMD_DESTROY							((FmRxCmdType)31)	/* Destroy command */
 
 #define FM_RX_CMD_CHANGE_AUDIO_TARGET					((FmRxCmdType)32)	/* Change the audio target*/
@@ -298,7 +296,10 @@ typedef FMC_UINT FmRxCmdType;
 #define FM_RX_CMD_COMPLETE_SCAN_PROGRESS                            	((FmRxCmdType)42)
 #define FM_RX_CMD_STOP_COMPLETE_SCAN                            	((FmRxCmdType)43)
 
-#define FM_RX_LAST_API_CMD						(FM_RX_CMD_STOP_COMPLETE_SCAN)
+#define FM_RX_CMD_SET_AUDIO_ROUTING ((FmRxCmdType)44)
+#define FM_RX_CMD_GET_AUDIO_ROUTING ((FmRxCmdType)45)
+
+#define FM_RX_LAST_API_CMD						(FM_RX_CMD_GET_AUDIO_ROUTING)
 #define FM_RX_CMD_NONE					0xFFFFFFFF
 /*-------------------------------------------------------------------------------
  * FmRxStatus type
@@ -596,7 +597,7 @@ struct _FmRxEvent {
  *
  *		FMC_STATUS_FAILED -  FM failed initialization.
  */
-FmRxStatus FM_RX_Init(const FmRxErrorCallBack fmErrorCallback);
+FmRxStatus FM_RX_Init(handle_t hMcpf, const FmRxErrorCallBack fmErrorCallback);
 
  /*-------------------------------------------------------------------------------
  * FM_RX_Init_Async()
@@ -634,7 +635,7 @@ FmRxStatus FM_RX_Init(const FmRxErrorCallBack fmErrorCallback);
  *		FMC_STATUS_FAILED -  FM failed initialization.
  *
  */
-FmRxStatus FM_RX_Init_Async(const FmRxCallBack fmInitCallback,const FmRxErrorCallBack fmErrorCallback);
+FmRxStatus FM_RX_Init_Async(handle_t hMcpf, const FmRxCallBack fmInitCallback,const FmRxErrorCallBack fmErrorCallback);
 
 /*-------------------------------------------------------------------------------
  * FM_Deinit()
@@ -1605,8 +1606,6 @@ FmRxStatus FM_RX_CompleteScan(FmRxContext *fmContext);
  *		FM_RX_STATUS_PENDING - Operation started successfully, an event will be sent to
  *								the application upon completion.
  *
- *
- *
  *		FM_RX_STATUS_COMPLETE_SCAN_IS_NOT_IN_PROGRESS - No Complete Scan currently in progress
  *
  */
@@ -2240,4 +2239,3 @@ FmRxStatus FM_RX_EnableAudioRouting (FmRxContext *fmContext);
 FmRxStatus FM_RX_DisableAudioRouting (FmRxContext *fmContext);
 
 #endif /* ifndef __FM_RX_H */
-

@@ -98,7 +98,7 @@ static void _FMC_CORE_InterruptCb(FmcOsEvent evtMask);
 extern uint16_t g_current_request_opcode;
 extern pthread_mutex_t g_current_request_opcode_guard;
 
-FmcStatus FMC_CORE_Init(void)
+FmcStatus FMC_CORE_Init(handle_t hMcpf)
 {
     FmcStatus       status = FMC_STATUS_SUCCESS;
 #if obc
@@ -115,9 +115,11 @@ FmcStatus FMC_CORE_Init(void)
     ccmStatus = CCM_StaticInit();
     FMC_VERIFY_FATAL_NO_RETVAR((ccmStatus == CCM_IM_STATUS_SUCCESS),  ("CCM_StaticInit Failed (%d)", ccmStatus));
 
-    ccmStatus = CCM_Create(MCP_HAL_CHIP_ID_0, &_fmcTransportData.ccmObj);
+    ccmStatus = CCM_Create(MCP_HAL_CHIP_ID_0, (handle_t *)&_fmcTransportData.ccmObj);
     FMC_VERIFY_FATAL_NO_RETVAR((ccmStatus == CCM_IM_STATUS_SUCCESS),  ("CCM_Create Failed (%d)", ccmStatus));
 
+    _fmcTransportData.hMcpf = hMcpf;
+    _fmcTransportData.ccmObj = MCPF_GET_CCM_OBJ(_fmcTransportData.hMcpf);
     ccmImObj = CCM_GetIm(_fmcTransportData.ccmObj);
     FMC_VERIFY_FATAL_NO_RETVAR((ccmImObj != NULL),  ("CCM_GetIm Returned a Null CCM IM Obj"));
 
@@ -128,8 +130,9 @@ FmcStatus FMC_CORE_Init(void)
     */  
     ccmStatus = CCM_IM_RegisterStack(ccmImObj, CCM_IM_STACK_ID_FM, _FMC_CORE_CcmImCallback, &_fmcTransportData.ccmImStackHandle);
     FMC_VERIFY_FATAL_NO_RETVAR((ccmStatus == CCM_IM_STATUS_SUCCESS),  ("CCM_IM_RegisterStack Failed (%d)", ccmStatus));
-#endif
 
+   _fmcTransportData.ccmaObj = CCM_GetCcmaObj(MCPF_GET_CCM_OBJ(_fmcTransportData.hMcpf));
+#endif
     /* open the socket to the stack */
     fm_open_cmd_socket(0);
 
@@ -989,7 +992,3 @@ void _FM_IF_FmVacCmdCompleteCb( FmcStatus   status,
 }
 
 #endif /*FMC_CONFIG_FM_STACK == FMC_CONFIG_ENABLED*/
-
-
-
-

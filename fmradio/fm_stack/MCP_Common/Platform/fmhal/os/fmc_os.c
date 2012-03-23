@@ -377,7 +377,7 @@ FmcStatus FMC_OS_DestroyTask(FmcOsTaskHandle taskHandle)
 	FM_BEGIN();
 
 	FM_TRACE("FMHAL_OS_DestroyTask: killing task %d", taskHandle);
-    
+
 	FM_ASSERT (taskHandle == FMC_OS_TASK_HANDLE_FM);
 
 	fmParams.taskRunning = FMC_FALSE;
@@ -416,12 +416,12 @@ FmcStatus FMC_OS_CreateSemaphore(const char *semaphoreName,
 	FMC_U32 idx;
 	pthread_mutexattr_t mutex_attr;
 	FM_BEGIN();
-	
+
 	FMC_UNUSED_PARAMETER(semaphoreName);
-		
+
 	/* we use recursive mutex - a mutex owner can relock the mutex. to release it,
-	     the mutex shall be unlocked as many times as it was locked
-	  */
+	 * the mutex shall be unlocked as many times as it was locked
+	 */
 	for (idx=0; idx < FMHAL_OS_MAX_NUM_OF_SEMAPHORES; idx++)
 	{
 		if (semaphores_ptr[idx] == NULL)
@@ -429,10 +429,11 @@ FmcStatus FMC_OS_CreateSemaphore(const char *semaphoreName,
 			break;
 		}
 	}
-	
-        if (idx == FMHAL_OS_MAX_NUM_OF_SEMAPHORES)
+
+	if (idx == FMHAL_OS_MAX_NUM_OF_SEMAPHORES)
 	{
 		/* exceeds maximum of available handles */
+		FM_TRACE("%s: no more free semaphores available !", __FUNCTION__);
 		return FMC_STATUS_FAILED;
 	}
 
@@ -444,7 +445,7 @@ FmcStatus FMC_OS_CreateSemaphore(const char *semaphoreName,
 		FM_TRACE("FMC_OS_CreateSemaphore | pthread_mutexattr_init() failed: %s", strerror(rc));
 		return FMC_STATUS_FAILED;
 	}
-	
+
 	rc = pthread_mutexattr_settype( &mutex_attr, PTHREAD_MUTEX_RECURSIVE);
 	if(rc != 0)
 	{
@@ -452,7 +453,7 @@ FmcStatus FMC_OS_CreateSemaphore(const char *semaphoreName,
 		pthread_mutexattr_destroy(&mutex_attr);
 		return FMC_STATUS_FAILED;
 	}
-		
+
 	rc = pthread_mutex_init(&semaphores[idx], &mutex_attr);
 	if(rc != 0)
 	{
@@ -460,7 +461,7 @@ FmcStatus FMC_OS_CreateSemaphore(const char *semaphoreName,
 		pthread_mutexattr_destroy(&mutex_attr);
 		return FMC_STATUS_FAILED;
 	}
-	
+
 	rc = pthread_mutexattr_destroy(&mutex_attr);
 	if(rc != 0)
 	{
@@ -469,8 +470,8 @@ FmcStatus FMC_OS_CreateSemaphore(const char *semaphoreName,
 		return FMC_STATUS_FAILED;
 	}
 	*semaphoreHandle = (FmcOsSemaphoreHandle)idx;
-			
-	FM_END();	
+
+	FM_END();
 	return FMC_STATUS_SUCCESS;
 }
 
@@ -490,7 +491,9 @@ FmcStatus FMC_OS_DestroySemaphore(FmcOsSemaphoreHandle semaphoreHandle)
 	if (semaphores_ptr[semaphoreHandle] == NULL)
 	{
 		/* mutex does not exists */
-		return FMC_STATUS_FAILED;
+		FM_TRACE("FMC_OS_DestroySemaphore: failed: mutex %d is NULL!", semaphoreHandle);
+		FM_END();
+		return FMC_STATUS_SUCCESS;
 	}
 
 	rc = pthread_mutex_destroy(semaphores_ptr[semaphoreHandle]);
@@ -510,24 +513,22 @@ FmcStatus FMC_OS_LockSemaphore(FmcOsSemaphoreHandle semaphore)
 {
 	int rc;
 	pthread_mutex_t * mutex;
-	
+
 	FM_ASSERT(semaphore < FMHAL_OS_MAX_NUM_OF_SEMAPHORES);
 	mutex = semaphores_ptr[semaphore];
 	
 	if (mutex == NULL)
 	{
 		/* mutex does not exists */
-		FM_TRACE(("FMHAL_OS_LockSemaphore: failed: mutex is NULL!"));
-		return FMC_STATUS_FAILED;
+		FM_TRACE("FMHAL_OS_LockSemaphore: failed: mutex %d is NULL!", semaphore);
+		return FMC_STATUS_SUCCESS;
 	}
-
 
 	rc = pthread_mutex_lock(mutex);
 	if (rc != 0)
 	{
 		FM_TRACE("FMC_OS_LockSemaphore: pthread_mutex_lock() failed: %s", strerror(rc));
 		return FMC_STATUS_FAILED;
-
 	}
 
 	return FMC_STATUS_SUCCESS;
@@ -543,10 +544,11 @@ FmcStatus FMC_OS_UnlockSemaphore(FmcOsSemaphoreHandle semaphore)
 
 	if (mutex == NULL)
 	{
-		FM_TRACE(("FMHAL_OS_UnLockSemaphore: failed: mutex is NULL!"));
+		FM_TRACE("FMHAL_OS_UnLockSemaphore: failed: mutex %d is NULL!", semaphore);
 		/* mutex does not exist */
-		return FMC_STATUS_FAILED;
+		return FMC_STATUS_SUCCESS;
 	}
+
 	rc = pthread_mutex_unlock(mutex);
 	if(rc != 0)
 	{
@@ -555,7 +557,6 @@ FmcStatus FMC_OS_UnlockSemaphore(FmcOsSemaphoreHandle semaphore)
 	}
 
 	return FMC_STATUS_SUCCESS;
-
 }
 
 /*-------------------------------------------------------------------------------

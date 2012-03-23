@@ -39,13 +39,16 @@ typedef struct {
     /* Counts number of clients (Tx / Rx) */
     FMC_UINT                    clientRefCount;
 
-    /* Shared Mutex for locking FM stack */
+    /* Shared mutex for locking FM stack */
     FmcOsSemaphoreHandle          mutexHandle; 
 
     /* Shared commands Queue */
     FMC_ListNode                    cmdsQueue;
 
     FmciFmTaskClientCallbackFunc    clientTaskCbFunc;
+
+    /* Handle to CCM Adapter */
+    handle_t                        ccmaObj;
 
     /* Allocation of commands memory pool */
     FMC_POOL_DECLARE_POOL(cmdsPool,         /* pool name */
@@ -72,7 +75,7 @@ FMC_STATIC void _FMC_TaskEventCallback(FmcOsEvent evtMask);
 FMC_STATIC FmcStatus _FMC_OsInit(void);
 FMC_STATIC FmcStatus _FMC_OsDeinit(void);
 
-FmcStatus FMCI_Init(void)
+FmcStatus FMCI_Init(handle_t hMcpf)
 {
     FmcStatus status = FMC_STATUS_SUCCESS;
     
@@ -133,7 +136,7 @@ FmcStatus FMCI_Init(void)
     FMC_InitializeListHead(&_fmcData.cmdsQueue);
 
     /* Initialize common transport layer */
-    status = FMC_CORE_Init();
+    status = FMC_CORE_Init(hMcpf);
     FMC_VERIFY_FATAL((status == FM_TX_STATUS_SUCCESS), status, ("FMCI_Init"));
     
     /* Initialization completed successfully */
@@ -340,5 +343,3 @@ void _FMC_TaskEventCallback(FmcOsEvent evtMask)
     }
     FMC_FUNC_END_AND_UNLOCK();
 }
-
-

@@ -28,7 +28,7 @@ LOCAL_C_INCLUDES += \
     system/bluetooth/bluez-clean-headers \
     system/bluetooth/bluedroid/include \
 
-LOCAL_CFLAGS += -DHAVE_BLUETOOTH
+LOCAL_CFLAGS += -DHAVE_BLUETOOTH -DDEBUG
 LOCAL_SHARED_LIBRARIES += libbluedroid libdbus
 endif
 

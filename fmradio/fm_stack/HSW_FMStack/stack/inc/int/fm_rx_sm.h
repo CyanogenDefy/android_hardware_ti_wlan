@@ -264,13 +264,6 @@ FmTxStatus FM_RX_SM_AllocateCmdAndAddToQueue(   FmRxContext     *context,
 FMC_BOOL FM_RX_SM_IsCmdPending(FmRxCmdType cmdType);
 
 /*
-  Return TRUE if CompleteScan is in progress and we can actually stop it 
-  (at the end stages the scan cannot be stopped (anyway only few ms are left)
-  Stopping the Scan at the final stages can cause a deadlock
-*/
-FMC_BOOL FM_RX_SM_IsCompleteScanStoppable();
-
-/*
     The function does the following:
     1. Searches the command queue for the last pending tune command structure object. If 
         an object was found, its frequency is returned (this is the "pending tuned frequency"); Otherwise

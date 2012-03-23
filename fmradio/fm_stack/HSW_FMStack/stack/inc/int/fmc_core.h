@@ -51,6 +51,7 @@
  * Include files
  *
  *******************************************************************************/
+#include "mcpf_defs.h"
 #include "fmc_types.h"
 #include "fmc_defs.h"
 #include "fmc_fw_defs.h"
@@ -62,6 +63,14 @@
  *
  *******************************************************************************/
 #define FMC_CORE_MAX_PARMS_LEN			255
+
+/* HCI Vendor-specific commands */
+
+#define FMC_HCC_GROUP_SHIFT(x)              ((x) << 10)
+#define FMC_HCC_GRP_VENDOR_SPECIFIC         (0x3F)
+
+/* HciEventType type*/
+#define FMC_HCE_COMMAND_COMPLETE               0x0E
 
 /********************************************************************************
  *
@@ -129,7 +138,7 @@ typedef void (*FmcCoreEventCb)(const FmcCoreEvent *eventParms);
  * Returns:
  *		A pointer to the first node on the list (or NULL if the list is empty)	
  */
-FmcStatus FMC_CORE_Init(void);
+FmcStatus FMC_CORE_Init(handle_t hMcpf);
 
 FmcStatus FMC_CORE_Deinit(void);
 
@@ -216,6 +225,28 @@ FmcStatus FMC_CORE_SendHciScriptCommand(	FMC_U16 	hciOpcode,
 FmcStatus FMC_CORE_RegisterUnregisterIntCallback(FMC_BOOL reg);
 
 CcmObj* _FMC_CORE_GetCcmObjStackHandle(void);
+
+
+/*-------------------------------------------------------------------------------
+ * FMC_GetCcmaObj()
+ *
+ *	Brief:  
+ *		Gets a handle to CCM Adapter object.
+ *
+ *	Description:
+ *		An application need to call this function in order to use this object with
+ *      MCP HCI Sequencer.
+ *
+ * Type:
+ *		Synchronous
+ *
+ * Parameters:
+ *		None.
+ *
+ * Returns:
+ *		Handle to CCM Adapter object.
+ */
+handle_t *FMC_GetCcmaObj(void);
 
 FmcStatus fm_open_cmd_socket(int hci_dev);
 

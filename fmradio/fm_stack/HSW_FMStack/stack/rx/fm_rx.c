@@ -28,6 +28,7 @@
 *   AUTHOR:   Zvi Schneider
 *
 \*******************************************************************************/
+#include "mcpf_defs.h"
 #include "fmc_types.h"
 #include "fmc_defs.h"
 #include "fmc_os.h"
@@ -126,7 +127,7 @@ extern FMC_BOOL fmRxSendDisableEventToApp;
   * 	 FMC_STATUS_FAILED -  FM failed initialization.
   */
 
-FmRxStatus FM_RX_Init(const FmRxErrorCallBack fmErrorCallback)
+FmRxStatus FM_RX_Init(handle_t hMcpf, const FmRxErrorCallBack fmErrorCallback)
 {
     FmRxStatus  status = FM_RX_STATUS_SUCCESS;
 
@@ -143,7 +144,7 @@ FmRxStatus FM_RX_Init(const FmRxErrorCallBack fmErrorCallback)
     _fmRxInitState = _FM_RX_INIT_STATE_INIT_FAILED;
     
     /* Init RX & TX common module */
-    status = FMCI_Init();
+	status = FMCI_Init(hMcpf);
     FMC_VERIFY_FATAL((status == FMC_STATUS_SUCCESS), status, 
                         ("FM_RX_Init: FMCI_Init Failed (%s)", FMC_DEBUG_FmcStatusStr(status)));
     
@@ -198,7 +199,7 @@ FmRxStatus FM_RX_Init(const FmRxErrorCallBack fmErrorCallback)
   *
   */
 
-FmRxStatus FM_RX_Init_Async(const FmRxCallBack fmInitCallback,const FmRxErrorCallBack fmErrorCallback)
+FmRxStatus FM_RX_Init_Async(handle_t hMcpf, const FmRxCallBack fmInitCallback,const FmRxErrorCallBack fmErrorCallback)
 {
     FmRxStatus  status = FM_RX_STATUS_SUCCESS;
     FmRxSmContextState contextState=FM_RX_SM_CONTEXT_STATE_DESTROYED;
@@ -278,7 +279,7 @@ FmRxStatus FM_RX_Init_Async(const FmRxCallBack fmInitCallback,const FmRxErrorCal
         /*  
             First Init
         */
-           status=FM_RX_Init(fmErrorCallback);
+           status=FM_RX_Init(hMcpf, fmErrorCallback);
       }         
 
     FMC_LOG_INFO(("FM_RX_Init_Async: FM RX Initialization completed Successfully"));
@@ -1610,7 +1611,7 @@ FmRxStatus FM_RX_StopCompleteScan(FmRxContext *fmContext)
     
     FMC_UNUSED_PARAMETER(fmContext);
     
-    if(FM_RX_SM_IsCompleteScanStoppable())
+    if(FM_RX_SM_GetRunningCmd() == FM_RX_CMD_COMPLETE_SCAN)
     {
         FM_RX_SM_SetUpperEvent( FM_RX_SM_UPPER_EVENT_STOP_COMPLETE_SCAN);
         FMCI_NotifyFmTask(FMC_OS_EVENT_FMC_STACK_TASK_PROCESS);
@@ -1625,40 +1626,12 @@ FmRxStatus FM_RX_StopCompleteScan(FmRxContext *fmContext)
 
 
 /*-------------------------------------------------------------------------------
- * FM_RX_StopCompleteScan()
+ * FM_RX_GetRssi()
  *
  * Brief: 
- *		Stop the Complte Scan.
- *
- * Description:
- *		
- *		Stop the Complte Scan.This function will be valid only after calling the FM_RX_CompleteScan()
- *      When calling this function without calling the FM_RX_CompleteScan() it will return FM_RX_STATUS_COMPLETE_SCAN_IS_NOT_IN_PROGRESS.
- *
- * Generated Events:
- *		Event type==FM_RX_EVENT_CMD_DONE, with command type == FM_RX_STATUS_COMPLETE_SCAN_STOPPED. 
- *		command value = Frequency in MHz pirior to the FM_RX_CompleteScan() request.
- *
- * Relevant Data:
- *
- *       "p.cmdDone"
- *       "p.cmdDone.cmd" - FM_RX_STATUS_COMPLETE_SCAN_STOPPED cmd type.
- *       "p.cmdDone.value" - Contains Freq in MHz that pirior to the Complete Scan.
- *
- * Type:
- *		Asynchronous/Synchronous
- *
- * Parameters:
- *		fmContext [in] - FM context.
- *
- * Returns:
- *		FM_RX_STATUS_PENDING - Operation started successfully, an event will be sent to
- *								the application upon completion.
- *
- *		FM_RX_STATUS_COMPLETE_SCAN_IS_NOT_IN_PROGRESS - No Complete Scan currently in progress
+ *		Returns the current RSSI.
  *
  */
-
 FmRxStatus FM_RX_GetRssi(FmRxContext *fmContext)
 {
     return _FM_RX_SimpleCmd(fmContext, 
@@ -1827,7 +1800,6 @@ FmRxStatus FM_RX_SetRdsSystem(FmRxContext *fmContext, FmcRdsSystem  rdsSystem)
  *		FM_RX_STATUS_TOO_MANY_PENDING_OPERATIONS - Too many operations are already waiting
  *														execution in operations queue.
  */
-
 FmRxStatus FM_RX_GetRdsSystem(FmRxContext *fmContext)
 {
     return _FM_RX_SimpleCmd(fmContext, 
@@ -1906,7 +1878,6 @@ FmRxStatus FM_RX_SetRdsGroupMask(FmRxContext *fmContext, FmcRdsGroupTypeMask gro
  *
  *		FM_RX_STATUS_CONTEXT_NOT_ENABLED - The context is not enabled
  */
-
 FmRxStatus FM_RX_GetRdsGroupMask(FmRxContext *fmContext)
 {
     return _FM_RX_SimpleCmd(fmContext, 
@@ -2004,7 +1975,6 @@ FmRxStatus FM_RX_SetRdsAfSwitchMode(FmRxContext *fmContext, FmRxRdsAfSwitchMode 
  *		FM_RX_STATUS_TOO_MANY_PENDING_OPERATIONS - Too many operations are already waiting
  *														execution in operations queue.
  */
-
 FmRxStatus FM_RX_GetRdsAfSwitchMode(FmRxContext *fmContext)
 {
     return _FM_RX_SimpleCmd(fmContext, 
@@ -2367,8 +2337,6 @@ FmRxStatus FM_RX_DisableAudioRouting (FmRxContext *fmContext)
 /***************************************************************************************************
  *                                                  
  ***************************************************************************************************/
-
-
 FmRxStatus _FM_RX_SimpleCmdAndCopyParams(FmRxContext *fmContext, 
                                 FMC_UINT paramIn,
                                 FMC_BOOL condition,
@@ -2403,6 +2371,7 @@ FmRxStatus _FM_RX_SimpleCmdAndCopyParams(FmRxContext *fmContext,
 
     return status;
 }
+
 FmRxStatus _FM_RX_SimpleCmd(FmRxContext *fmContext, 
                                 FmRxCmdType cmdT,
                                 const char * funcName)
@@ -2428,20 +2397,12 @@ FmRxStatus _FM_RX_SimpleCmd(FmRxContext *fmContext,
 
 FmRxStatus FM_RX_Init(void)
 {
-    
         return FM_RX_STATUS_SUCCESS;
-    
 }
 
 FmRxStatus FM_RX_Deinit(void)
 {
-
         return FM_RX_STATUS_SUCCESS;
 }
 
-
 #endif /*FMC_CONFIG_FM_STACK == FMC_CONFIG_ENABLED*/
-
-
-
-

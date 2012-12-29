@@ -91,7 +91,7 @@ VOID os_error_printf(S32 debug_level, const PS8 arg_list ,...)
     va_end(ap);
 
     /* print the message */
-    fprintf(stderr, (char*)msg);
+    fprintf(stderr, "%s" , (char*)msg);
 }
 
 /****************************************************************************************
@@ -140,7 +140,7 @@ S32 os_sprintf(PS8 str, const PS8 arg_list, ...)
     vsprintf((char*)msg, (char*)arg_list, ap);
     va_end(ap);
 
-    return sprintf((char*)str, (char*)msg);
+    return sprintf((char*)str, "%s" , (char*)msg);
 }
 
 /****************************************************************************************
@@ -154,7 +154,7 @@ RETURN:
 *****************************************************************************************/
 S32 os_Printf(const PS8 buffer)
 {
-    return printf((char*)buffer);
+    return printf((char*)buffer, "%s");
 }
 
 
@@ -319,7 +319,7 @@ S32 os_sscanf(const PS8 str, const PS8 arg_list, ...)
     vsprintf((char*)msg, (char*)arg_list, ap);
     va_end(ap);
 
-    return sscanf((char*)str, (char*)msg);
+    return sscanf((char*)str, "%s" , (char*)msg);
 }
 
 /************************************************************************
